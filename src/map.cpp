@@ -212,15 +212,14 @@ Handle<Value> Map::MapservAsync(const Arguments& args) {
   baton->map = self->map;
 
   // Convert the environment object to a map
-  baton->env = new std::map<string, string>();
   const Local<Array> properties = env->GetPropertyNames();
   const uint32_t length = properties->Length();
   for (uint32_t i = 0; i < length; ++i) {
     const Local<Value> key = properties->Get(i);
     const Local<Value> value = env->Get(key);
-    baton->env->insert(pair<string, string>(string(*String::Utf8Value(key->ToString())),
-                                            string(*String::Utf8Value(value->ToString())))
-                       );
+    baton->env.insert(pair<string, string>(string(*String::Utf8Value(key->ToString())),
+                                           string(*String::Utf8Value(value->ToString())))
+                      );
   }
 
   self->Ref(); // increment reference count so map is not garbage collected
@@ -239,7 +238,7 @@ void Map::MapservWork(uv_work_t *req) {
   msIO_installStdoutToBuffer(); // ensure stdout is buffered
 
   // load the CGI parameters from the environment object
-  mapserv->request->NumParams = loadParams(mapserv->request, GetEnv, NULL, 0, static_cast<void *>(baton->env));
+  mapserv->request->NumParams = loadParams(mapserv->request, GetEnv, NULL, 0, static_cast<void *>(&(baton->env)));
   if( mapserv->request->NumParams == -1 ) {
     goto get_output;
   }
@@ -334,11 +333,7 @@ void Map::MapservAfter(uv_work_t *req) {
     msFree(baton->content_type);
   }
 
-  if (baton->env) {
-    baton->env->clear();
-    delete baton->env;
-  }
-
+  baton->env.clear();
   baton->callback.Dispose();
   self->Unref(); // decrement the cache reference so it can be garbage collected
   delete baton;

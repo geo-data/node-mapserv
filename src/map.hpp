@@ -147,7 +147,7 @@ private:
     /// The buffer containing the mapserv response
     gdBuffer *buffer;
     /// The CGI environment variables
-    std::map<string, string> *env;
+    std::map<string, string> env;
   };
 
   /// Intantiate a Map from a mapObj
