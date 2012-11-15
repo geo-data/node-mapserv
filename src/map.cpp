@@ -240,6 +240,7 @@ void Map::MapservWork(uv_work_t *req) {
   // load the CGI parameters from the environment object
   mapserv->request->NumParams = loadParams(mapserv->request, GetEnv, NULL, 0, static_cast<void *>(&(baton->env)));
   if( mapserv->request->NumParams == -1 ) {
+    // no errors are generated but messages are output instead
     goto get_output;
   }
 
@@ -292,11 +293,6 @@ void Map::MapservAfter(uv_work_t *req) {
     // convert the http_response to a javascript object
     Local<Object> result = Object::New();
 
-    // set the response data as a Node Buffer object
-    if (buffer && buffer->data) {
-      result->Set(data_symbol, Buffer::New((char *)buffer->data, buffer->size)->handle_);
-    }
-
     // Add the content-type to the headers object.  This object mirrors the
     // HTTP headers structure and creates an API that allows for the addition
     // of other headers in the future.
@@ -308,6 +304,16 @@ void Map::MapservAfter(uv_work_t *req) {
       headers->Set(String::New("Content-Type"), values);
     }
     result->Set(headers_symbol, headers);
+
+    // set the response data as a Node Buffer object
+    if (buffer && buffer->data) {
+      result->Set(data_symbol, Buffer::New((char *)buffer->data, buffer->size)->handle_);
+
+      // add the content-length header
+      Local<Array> values = Array::New(1);
+      values->Set(0, Uint32::New(buffer->size));
+      headers->Set(String::New("Content-Length"), values);
+    }
 
     argv[0] = Undefined();
     argv[1] = result;

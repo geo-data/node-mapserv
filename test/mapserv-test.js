@@ -468,9 +468,17 @@ vows.describe('mapserv').addBatch({
                 assert.instanceOf(response, Object);
             },
             'which has the correct headers': function (response) {
-                assert.deepEqual(response.headers,  {
-                    'Content-Type': [ 'image/png' ]
-                });
+                assert.lengthOf(response.headers, 2);
+
+                // check the content-type
+                assert.isArray(response.headers['Content-Type']);                
+                assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
+
+                // check the content-length
+                assert.isArray(response.headers['Content-Length']);
+                assert.lengthOf(response.headers['Content-Length'], 1);
+                assert.isNumber(response.headers['Content-Length'][0]);
+                assert.isTrue(response.headers['Content-Length'][0] > 0);
             },
             'which returns image data as a `Buffer`': function (response) {
                 assert.isObject(response.data);
@@ -497,8 +505,12 @@ vows.describe('mapserv').addBatch({
             'which is an object': function (response) {
                 assert.instanceOf(response, Object);
             },
-            'which has no headers': function (response) {
-                assert.isEmpty(response.headers);
+            'which only has a `Content-Length` header': function (response) {
+                assert.lengthOf(response.headers, 1);
+                assert.isArray(response.headers['Content-Length']);
+                assert.lengthOf(response.headers['Content-Length'], 1);
+                assert.isNumber(response.headers['Content-Length'][0]);
+                assert.isTrue(response.headers['Content-Length'][0] > 0);
             },
             'which has text data as a `Buffer`': function (response) {
                 assert.isObject(response.data);
@@ -527,9 +539,17 @@ vows.describe('mapserv').addBatch({
                 assert.instanceOf(response, Object);
             },
             'which has the correct headers': function (response) {
-                assert.deepEqual(response.headers,  {
-                    'Content-Type': [ 'text/html' ]
-                });
+                assert.lengthOf(response.headers, 2);
+
+                // check the content-type
+                assert.isArray(response.headers['Content-Type']);                
+                assert.deepEqual(response.headers['Content-Type'],  [ 'text/html' ]);
+
+                // check the content-length
+                assert.isArray(response.headers['Content-Length']);
+                assert.lengthOf(response.headers['Content-Length'], 1);
+                assert.isNumber(response.headers['Content-Length'][0]);
+                assert.isTrue(response.headers['Content-Length'][0] > 0);
             },
             'which has text data as a `Buffer`': function (response) {
                 assert.isObject(response.data);
