@@ -26,21 +26,19 @@
  *****************************************************************************/
 
 /**
- * @file node-mapcache.cpp
+ * @file node-mapserv.cpp
  * @brief This registers and initialises the module with Node.
  *
- * @mainpage Node %MapCache
+ * @mainpage Node %Mapserv
  *
  * This represents the C++ bindings that are part of a package
- * providing access to <a
- * href="http://www.mapserver.org/trunk/mapcache/index.html">Mapserver
- * MapCache</a> functionality from <a
- * href="http://nodejs.org">Node.js</a>.
+ * providing access from <a href="http://nodejs.org">Node.js</a> to
+ * the functionality provided by the <a
+ * href="http://www.mapserver.org">Mapserver mapserv CGI</a> program.
  *
- * MapCache is the primary C++ class which wraps the underlying
- * libmapcache functionality.  A thin layer of javascript is used in
- * the package to expose this class to clients along with some
- * additional features built on it.
+ * Map is the primary C++ class which wraps the underlying MapServer
+ * `mapObj` data structure.  A javascript shim is used in the package
+ * to expose this class to javascript clients.
  *
  * See the `README.md` file distributed with the package for further
  * details.
@@ -51,11 +49,10 @@
 /** Clean up at module exit.
  *
  * This performs housekeeping duties when the module is
- * unloaded. Specifically it frees up static data structures used by
- * the `MapCache` class.
+ * unloaded.
  *
- * The function signature is suitable for using passing it to the
- * `Node::AtExit` function.
+ * The function signature is designed so that a pointer to the
+ * function can be passed to the `Node::AtExit` function.
  *
  * @param arg Not currently used.
  */
@@ -67,11 +64,11 @@ static void Cleanup(void* arg) {
 /** Initialise the module.
  *
  * This is the entry point to the module called by Node and as such it
- * initialises various module elements:
+ * performs various initialisation functions:
  *
- * - The APR library used by `libmapcache`.
- * - The `MapCache` class
- * - Versioning information
+ * - Sets up the `libmapserver` library
+ * - Initialises the `Map` class
+ * - Ensures `libmapserver` has been compiled with thread support
  *
  * @param target The object representing the module.
  */
