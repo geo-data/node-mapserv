@@ -28,13 +28,20 @@
 #ifndef NODE_MAPSERVUTIL_H
 #define NODE_MAPSERVUTIL_H
 
+#include "mapserver.h"
+#include "mapthread.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "mapserver.h"
-  
-void setClassGroup(layerObj *layer, char *classgroup);
+/* `mapserv.h` is not wrapped with `extern "C"` */
+#include "mapserv.h"
+
+int wrap_loadParams(cgiRequestObj *request, char* (*getenv2)(const char*, void* thread_context),
+                   char *raw_post_data, ms_uint32 raw_post_data_length, void* thread_context);
+
+int updateMap(mapservObj *mapserv, mapObj *map);
 
 #ifdef __cplusplus
 }

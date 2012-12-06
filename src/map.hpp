@@ -39,7 +39,6 @@
 
 // Mapserver headers
 #include "mapserver.h"
-#include "mapthread.h"
 extern "C" {
 #include "mapserv.h"
 }
