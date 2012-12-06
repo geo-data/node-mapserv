@@ -1,0 +1,22 @@
+{
+    "config": {
+        "include_dir": "",
+        "lib_dir": ""
+    },
+    "author": "Homme Zwaagstra <hrz@geodata.soton.ac.uk>",
+    "name": "mapserv",
+    "description": "All the functionality of Mapserver's mapserv CGI program made available to Node",
+    "version": "0.1.0",
+    "main": "lib/mapserv.js",
+    "engines": {
+        "node": ">=0.8"
+    },
+    "scripts": {
+        "pretest": "npm install vows",
+        "test": "./node_modules/.bin/vows --spec ./test/mapserv-test.js"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "vows":  "*"
+    }
+}

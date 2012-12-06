@@ -7,16 +7,22 @@
         "src/map.cpp",
         "src/node-mapservutil.c"
       ],
+      "include_dirs": [
+        "<!@(python tools/config.py --include)"
+      ],
       "conditions": [
         ['OS=="linux"', {
           'ldflags': [
-            '-Wl,--no-as-needed,-lmapserver'
+            '-Wl,--no-as-needed,-lmapserver',
+            '<!@(python tools/config.py --ldflags)'
           ],
           'libraries': [
-            '<!@(mapserver-config --libs)'
+            '<!@(mapserver-config --libs)',
+            "<!@(python tools/config.py --libraries)"
           ],
           'cflags': [
             '<!@(mapserver-config --cflags)',
+            '-pedantic',
             '-Wall'
           ],
         }],
