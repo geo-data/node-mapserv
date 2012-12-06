@@ -234,6 +234,7 @@ void Map::MapservWork(uv_work_t *req) {
 
   MapBaton *baton = static_cast<MapBaton*>(req->data);
   mapservObj* mapserv = msAllocMapServObj();
+  bool reportError = false;     // flag an error as worthy of reporting
 
   msIO_installStdoutToBuffer(); // ensure stdout is buffered
 
@@ -241,16 +242,19 @@ void Map::MapservWork(uv_work_t *req) {
   mapserv->request->NumParams = wrap_loadParams(mapserv->request, GetEnv, NULL, 0, static_cast<void *>(&(baton->env)));
   if( mapserv->request->NumParams == -1 ) {
     // no errors are generated but messages are output instead
+    reportError = true;
     goto get_output;
   }
 
   // Copy the map into the mapservObj for this request
   if(!LoadMap(mapserv, baton->map)) {
+    reportError = true;
     goto get_output;
   }
 
   // Execute the request
   if(msCGIDispatchRequest(mapserv) != MS_SUCCESS) {
+    reportError = true;
     goto get_output;
   }
 
@@ -267,7 +271,10 @@ void Map::MapservWork(uv_work_t *req) {
   // handle any unhandled errors
   errorObj *error = msGetErrorObj();
   if (error && error->code != MS_NOERR) {
-    baton->error = error->message;
+    // report either specific errors or unhandled errors
+    if (reportError or !error->isreported) {
+      baton->error = error->message;
+    }
     msResetErrorList();         // clear all handled errors
   }
 
