@@ -246,12 +246,12 @@ void Map::MapservWork(uv_work_t *req) {
 
   // Copy the map into the mapservObj for this request
   if(!LoadMap(mapserv, baton->map)) {
-    goto end_request;
+    goto get_output;
   }
 
   // Execute the request
   if(msCGIDispatchRequest(mapserv) != MS_SUCCESS) {
-    goto end_request;
+    goto get_output;
   }
 
  get_output:
@@ -264,12 +264,11 @@ void Map::MapservWork(uv_work_t *req) {
   // Get the buffered output
   baton->buffer = msIO_getStdoutBufferBytes();
 
- end_request:
-  // handle any errors
+  // handle any unhandled errors
   errorObj *error = msGetErrorObj();
-  if (error && error->code != MS_NOERR && !error->isreported) {
+  if (error && error->code != MS_NOERR) {
     baton->error = error->message;
-    msResetErrorList();
+    msResetErrorList();         // clear all handled errors
   }
 
   // clean up
@@ -288,36 +287,36 @@ void Map::MapservAfter(uv_work_t *req) {
 
   if (!baton->error.empty()) {
     argv[0] = Exception::Error(String::New(baton->error.c_str()));
-    argv[1] = Undefined();
   } else {
-    // convert the http_response to a javascript object
-    Local<Object> result = Object::New();
-
-    // Add the content-type to the headers object.  This object mirrors the
-    // HTTP headers structure and creates an API that allows for the addition
-    // of other headers in the future.
-    Local<Object> headers = Object::New();
-    if (baton->content_type) {
-      Local<Array> values = Array::New(1);
-
-      values->Set(0, String::New(baton->content_type));
-      headers->Set(String::New("Content-Type"), values);
-    }
-    result->Set(headers_symbol, headers);
-
-    // set the response data as a Node Buffer object
-    if (buffer && buffer->data) {
-      result->Set(data_symbol, Buffer::New((char *)buffer->data, buffer->size)->handle_);
-
-      // add the content-length header
-      Local<Array> values = Array::New(1);
-      values->Set(0, Uint32::New(buffer->size));
-      headers->Set(String::New("Content-Length"), values);
-    }
-
     argv[0] = Undefined();
-    argv[1] = result;
   }
+
+  // convert the http_response to a javascript object
+  Local<Object> result = Object::New();
+
+  // Add the content-type to the headers object.  This object mirrors the
+  // HTTP headers structure and creates an API that allows for the addition
+  // of other headers in the future.
+  Local<Object> headers = Object::New();
+  if (baton->content_type) {
+    Local<Array> values = Array::New(1);
+
+    values->Set(0, String::New(baton->content_type));
+    headers->Set(String::New("Content-Type"), values);
+  }
+  result->Set(headers_symbol, headers);
+
+  // set the response data as a Node Buffer object
+  if (buffer && buffer->data) {
+    result->Set(data_symbol, Buffer::New((char *)buffer->data, buffer->size)->handle_);
+
+    // add the content-length header
+    Local<Array> values = Array::New(1);
+    values->Set(0, Uint32::New(buffer->size));
+    headers->Set(String::New("Content-Length"), values);
+  }
+
+  argv[1] = result;
 
   // pass the results to the user specified callback function
   TryCatch try_catch;
