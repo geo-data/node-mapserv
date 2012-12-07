@@ -1,0 +1,48 @@
+# Used in the `node-mapserv` wms example
+MAP
+  NAME "WMS-TEST"
+  # Map image size
+  SIZE 400 400
+  UNITS dd
+  EXTENT -180 -90 180 90
+
+  PROJECTION
+    'init=epsg:4326'
+  END
+
+  IMAGECOLOR 255 255 255
+  IMAGEQUALITY 95
+  IMAGETYPE png
+
+  OUTPUTFORMAT
+    NAME png
+    DRIVER 'GD/PNG'
+    MIMETYPE 'image/png'
+    IMAGEMODE RGBA
+    EXTENSION 'png'
+  END
+
+  WEB
+    # WMS server settings
+    METADATA
+      'ows_title'           'WMS-TEST'
+      'ows_onlineresource'  'http://localhost:3000/'
+      'ows_srs'             'EPSG:4326'
+      'ows_enable_request'  '*'
+    END
+  END
+
+  LAYER
+    NAME "GMRT"
+    TYPE RASTER
+    STATUS ON
+    CONNECTION "http://gmrt.marine-geo.org/cgi-bin/mapserv?map=/public/mgg/web/gmrt.marine-geo.org/htdocs/services/map/wms_merc.map&"
+    CONNECTIONTYPE WMS
+    METADATA
+      "ows_srs"             "EPSG:4326"
+      "ows_name"            "GMRT"
+      "ows_server_version"  "1.0.0"
+      "ows_format"          "image/png"
+    END
+  END
+END
