@@ -485,6 +485,9 @@ vows.describe('mapserv').addBatch({
                 assert.instanceOf(response.data, buffer.Buffer);
                 assert.isTrue(response.data.length > 0);
             }
+        },
+        'does not return an error': function (err, response) {
+            assert.isNull(err);
         }
     },
     'a request with no `REQUEST_METHOD`': {
@@ -517,6 +520,9 @@ vows.describe('mapserv').addBatch({
                 assert.instanceOf(response.data, buffer.Buffer);
                 assert.isTrue(response.data.length > 0);
             }
+        },
+        'does not return an error': function (err, response) {
+            assert.isNull(err);
         }
     },
     'a request with a `REQUEST_METHOD` but no `QUERY_STRING`': {
@@ -557,6 +563,9 @@ vows.describe('mapserv').addBatch({
                 assert.isTrue(response.data.length > 0);
                 assert.equal(response.data.toString(), "No query information to decode. QUERY_STRING not set.\n");
             }
+        },
+        'does not return an error': function (err, response) {
+            assert.isNull(err);
         }
     }
 }).export(module); // Export the Suite
