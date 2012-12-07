@@ -272,7 +272,7 @@ void Map::MapservWork(uv_work_t *req) {
   errorObj *error = msGetErrorObj();
   if (error && error->code != MS_NOERR) {
     // report either specific errors or unhandled errors
-    if (reportError or !error->isreported) {
+    if (reportError) {
       baton->error = error->message;
     }
     msResetErrorList();         // clear all handled errors
