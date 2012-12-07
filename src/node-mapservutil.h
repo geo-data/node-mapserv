@@ -28,6 +28,11 @@
 #ifndef NODE_MAPSERVUTIL_H
 #define NODE_MAPSERVUTIL_H
 
+/**
+ * @file node-mapservutil.h
+ * @brief This declares C utility functions used by the `Map` class.
+ */
+
 #include "mapserver.h"
 #include "mapthread.h"
 
@@ -38,9 +43,22 @@ extern "C" {
 /* `mapserv.h` is not wrapped with `extern "C"` */
 #include "mapserv.h"
 
+/**
+ * Wrap the mapserver `loadParams` function
+ *
+ * This is necessary because `loadParams` is not wrapped in an `extern "C"`
+ * which causes linker problems when compiling with C++ due to name mangling.
+ */
 int wrap_loadParams(cgiRequestObj *request, char* (*getenv2)(const char*, void* thread_context),
                    char *raw_post_data, ms_uint32 raw_post_data_length, void* thread_context);
 
+/**
+ * Perform mapserv request map initialisation (e.g. variable substitutions)
+ *
+ * This function is copied verbatim from the latter part of `msCGILoadMap()`
+ * with the exception of adding the mutex around `msUpdateMapFromURL()` and
+ * altering the return type.
+ */
 int updateMap(mapservObj *mapserv, mapObj *map);
 
 #ifdef __cplusplus

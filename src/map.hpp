@@ -28,6 +28,11 @@
 #ifndef __NODE_MAPSERV_MAP_H__
 #define __NODE_MAPSERV_MAP_H__
 
+/**
+ * @file map.hpp
+ * @brief This declares the primary `Map` class.
+ */
+
 // Standard headers
 #include <string>
 #include <map>
@@ -89,6 +94,19 @@ using namespace std;
 using namespace node;
 using namespace v8;
 
+/**
+ * @brief The primary class in the module representing a mapserver Map
+ *
+ * This class wraps an instance of a mapserver `mapObj`.  The `FromFile` and
+ * `FromString` class constructor methods enable the map to be instantiated
+ * from a mapfile using the non-blocking callback paradigm where the work is
+ * carried out in a separate thread.
+ *
+ * Once instantiated the `mapserv` method is exposed to javascript clients
+ * which allow calls to be made to the underlying mapserv functionality.  Again
+ * this is performed asynchronously to prevent blocking of the main Node.js
+ * event loop.
+ */
 class Map: ObjectWrap {
 public:
 
@@ -114,7 +132,7 @@ private:
   /// The string "headers"
   static Persistent<String> headers_symbol;
 
-  /// The underlying mapserver object that the class wraps
+  /// The underlying mapserver data structure that the class wraps
   mapObj *map;
 
   /// The structure used when performing asynchronous operations
@@ -131,6 +149,7 @@ private:
     string error;
   };
 
+  /// The structure containing mapserver output
   struct gdBuffer {
     unsigned char *data;
     int size;
@@ -166,19 +185,19 @@ private:
   /// Instantiate an object
   static Handle<Value> New(const Arguments& args);
   
-  /// Create a mapObj a file path
+  /// Asynchronously create a `mapObj` from a file path
   static void FromFileWork(uv_work_t *req);
 
-  /// Return the new map to the caller
+  /// Return the new `Map` instance to the caller
   static void FromFileAfter(uv_work_t *req);
 
-  /// Create a mapObj a string
+  /// Asynchronouysly create a `mapObj` from a mapfile string
   static void FromStringWork(uv_work_t *req);
 
-  /// Return the new map to the caller
+  /// Return the new `Map` instance to the caller
   static void FromStringAfter(uv_work_t *req);
   
-  /// Execute a mapserv request
+  /// Asynchronously execute a mapserv request
   static void MapservWork(uv_work_t *req);
 
   /// Return the mapserv response to the caller
@@ -190,8 +209,71 @@ private:
   /// Get the mapserver output as a buffer
   static gdBuffer* msIO_getStdoutBufferBytes(void);
 
-  /// Copy a mapObj into a mapservObj
+  /// Create a map object for use in a mapserv request
   static mapObj* LoadMap(mapservObj *mapserv, mapObj *src);
 };
+
+/**
+ * @def REQ_STR_ARG(I, VAR)
+ *
+ * This throws a `TypeError` if the argument is of the wrong type.
+ *
+ * @param I A zero indexed integer representing the variable to
+ * extract in the `args` array.
+ * @param VAR The symbol name of the variable to be created.
+
+ * @def ASSIGN_FUN_ARG(I, VAR)
+ *
+ * This throws a `TypeError` if the argument is of the wrong type.
+ *
+ * @param I A zero indexed integer representing the variable to
+ * extract in the `args` array.
+ * @param VAR The symbol name of the variable to be created.
+
+ * @def REQ_FUN_ARG(I, VAR)
+ *
+ * This defines a `Local<Function>` variable and then delegates to the
+ * `ASSIGN_FUN_ARG` macro.
+
+ * @def REQ_EXT_ARG(I, VAR)
+ *
+ * This throws a `TypeError` if the argument is of the wrong type.
+ *
+ * @param I A zero indexed integer representing the variable to
+ * extract in the `args` array.
+ * @param VAR The symbol name of the variable to be created.
+
+ * @def ASSIGN_OBJ_ARG(I, VAR)
+ *
+ * This throws a `TypeError` if the argument is of the wrong type.
+ *
+ * @param I A zero indexed integer representing the variable to
+ * extract in the `args` array.
+ * @param VAR The symbol name of the variable to be created.
+
+ * @def REQ_OBJ_ARG(I, VAR)
+ *
+ * This defines a `Local<Object>` variable and then delegates to the
+ * `ASSIGN_OBJ_ARG` macro.
+
+ * @def THROW_CSTR_ERROR(TYPE, STR)
+ *
+ * This returns from the containing function throwing an error of a
+ * specific type.
+ *
+ * @param TYPE The symbol name of the exception to be thrown.
+ * @param STR The `char` string to set as the error message.
+
+ * @struct Map::gdBuffer
+ *
+ * This structure is used to capture data output from mapserver.  It is
+ * inspired by code in the PHP Mapserver MapScript module.
+
+ * @struct Map::Baton
+ *
+ * This represents a standard interface used to transfer data
+ * structures between threads when using libuv asynchronously. See
+ * <http://kkaefer.github.com/node-cpp-modules> for details.
+ */
 
 #endif  /* __NODE_MAPSERV_MAP_H__ */

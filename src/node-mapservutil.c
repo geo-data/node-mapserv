@@ -25,9 +25,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+/**
+ * @file node-mapservutil.c
+ * @brief This defines C utility functions used by the `Map` class.
+ */
+
 #include "node-mapservutil.h"
 
-/* copied from `mapservutil.c` */
+/**
+ * A utility function copied verbatim from `mapservutil.c`
+ */
 static void setClassGroup(layerObj *layer, char *classgroup)
 {
   int i;
@@ -51,8 +58,6 @@ int wrap_loadParams(cgiRequestObj *request, char* (*getenv2)(const char*, void* 
 int updateMap(mapservObj *mapserv, mapObj *map) {
   int i, j;
 
-  /* This function is copied verbatim from the latter part of `msCGILoadMap()`
-     with the exception of adding the mutex around `msUpdateMapFromURL()` */
   if(!msLookupHashTable(&(map->web.validation), "immutable")) {
     /* check for any %variable% substitutions here, also do any map_ changes, we do this here so WMS/WFS  */
     /* services can take advantage of these "vendor specific" extensions */

@@ -31,7 +31,7 @@
  *
  * @mainpage Node %Mapserv
  *
- * This represents the C++ bindings that are part of a package
+ * This represents the C++ bindings that are part of a module
  * providing access from <a href="http://nodejs.org">Node.js</a> to
  * the functionality provided by the <a
  * href="http://www.mapserver.org">Mapserver mapserv CGI</a> program.
