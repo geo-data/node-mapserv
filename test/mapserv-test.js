@@ -486,68 +486,19 @@ vows.describe('mapserv').addBatch({
         }
     }
 }).addBatch({
-    // Ensure mapserv functions as expected
-
-    'requesting a valid map via `GET`': {
+    // Ensure mapserv functions as expected with a valid map
+    'requesting a valid map': {
         topic: function () {
-            var self = this;
-            mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
-                if (err) {
-                    return self.callback(err, null);
-                }
+            mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), this.callback);
+        },
+        'via `GET`': {
+            topic: function (map) {
                 return map.mapserv(
                     {
                         'REQUEST_METHOD': 'GET',
                         'QUERY_STRING': 'mode=map&layer=credits'
                     },
-                    self.callback);
-            });
-        },
-        'returns a response': {
-            'which is an object': function (response) {
-                assert.instanceOf(response, Object);
-            },
-            'which has the correct headers': function (response) {
-                assert.lengthOf(response.headers, 2);
-
-                // check the content-type
-                assert.isArray(response.headers['Content-Type']);
-                assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
-
-                // check the content-length
-                assert.isArray(response.headers['Content-Length']);
-                assert.lengthOf(response.headers['Content-Length'], 1);
-                assert.isNumber(response.headers['Content-Length'][0]);
-                assert.isTrue(response.headers['Content-Length'][0] > 0);
-            },
-            'which returns image data as a `Buffer`': function (response) {
-                assert.isObject(response.data);
-                assert.instanceOf(response.data, buffer.Buffer);
-                assert.isTrue(response.data.length > 0);
-            }
-        },
-        'does not return an error': function (err, response) {
-            assert.isNull(err);
-        }
-    },
-    'requesting a valid map via `POST`': {
-        'using a string': {
-            topic: function () {
-                var self = this,
-                    body = 'mode=map&layer=credits';
-                mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
-                    if (err) {
-                        return self.callback(err, null);
-                    }
-                    return map.mapserv(
-                        {
-                            'REQUEST_METHOD': 'POST',
-                            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
-                            'CONTENT_LENGTH': body.length
-                        },
-                        body,
-                        self.callback);
-                });
+                    this.callback);
             },
             'returns a response': {
                 'which is an object': function (response) {
@@ -576,14 +527,10 @@ vows.describe('mapserv').addBatch({
                 assert.isNull(err);
             }
         },
-        'using a buffer': {
-            topic: function () {
-                var self = this,
-                    body = new Buffer('mode=map&layer=credits');
-                mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
-                    if (err) {
-                        return self.callback(err, null);
-                    }
+        'via `POST`': {
+            'using a string': {
+                topic: function (map) {
+                    var body = 'mode=map&layer=credits';
                     return map.mapserv(
                         {
                             'REQUEST_METHOD': 'POST',
@@ -591,92 +538,116 @@ vows.describe('mapserv').addBatch({
                             'CONTENT_LENGTH': body.length
                         },
                         body,
-                        self.callback);
-                });
-            },
-            'returns a response': {
-                'which is an object': function (response) {
-                    assert.instanceOf(response, Object);
+                        this.callback);
                 },
-                'which has the correct headers': function (response) {
-                    assert.lengthOf(response.headers, 2);
+                'returns a response': {
+                    'which is an object': function (response) {
+                        assert.instanceOf(response, Object);
+                    },
+                    'which has the correct headers': function (response) {
+                        assert.lengthOf(response.headers, 2);
 
-                    // check the content-type
-                    assert.isArray(response.headers['Content-Type']);
-                    assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
+                        // check the content-type
+                        assert.isArray(response.headers['Content-Type']);
+                        assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
 
-                    // check the content-length
-                    assert.isArray(response.headers['Content-Length']);
-                    assert.lengthOf(response.headers['Content-Length'], 1);
-                    assert.isNumber(response.headers['Content-Length'][0]);
-                    assert.isTrue(response.headers['Content-Length'][0] > 0);
+                        // check the content-length
+                        assert.isArray(response.headers['Content-Length']);
+                        assert.lengthOf(response.headers['Content-Length'], 1);
+                        assert.isNumber(response.headers['Content-Length'][0]);
+                        assert.isTrue(response.headers['Content-Length'][0] > 0);
+                    },
+                    'which returns image data as a `Buffer`': function (response) {
+                        assert.isObject(response.data);
+                        assert.instanceOf(response.data, buffer.Buffer);
+                        assert.isTrue(response.data.length > 0);
+                    }
                 },
-                'which returns image data as a `Buffer`': function (response) {
-                    assert.isObject(response.data);
-                    assert.instanceOf(response.data, buffer.Buffer);
-                    assert.isTrue(response.data.length > 0);
+                'does not return an error': function (err, response) {
+                    assert.isNull(err);
                 }
             },
-            'does not return an error': function (err, response) {
-                assert.isNull(err);
+            'using a buffer': {
+                topic: function (map) {
+                    var body = new Buffer('mode=map&layer=credits');
+                    return map.mapserv(
+                        {
+                            'REQUEST_METHOD': 'POST',
+                            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+                            'CONTENT_LENGTH': body.length
+                        },
+                        body,
+                        this.callback);
+                },
+                'returns a response': {
+                    'which is an object': function (response) {
+                        assert.instanceOf(response, Object);
+                    },
+                    'which has the correct headers': function (response) {
+                        assert.lengthOf(response.headers, 2);
+
+                        // check the content-type
+                        assert.isArray(response.headers['Content-Type']);
+                        assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
+
+                        // check the content-length
+                        assert.isArray(response.headers['Content-Length']);
+                        assert.lengthOf(response.headers['Content-Length'], 1);
+                        assert.isNumber(response.headers['Content-Length'][0]);
+                        assert.isTrue(response.headers['Content-Length'][0] > 0);
+                    },
+                    'which returns image data as a `Buffer`': function (response) {
+                        assert.isObject(response.data);
+                        assert.instanceOf(response.data, buffer.Buffer);
+                        assert.isTrue(response.data.length > 0);
+                    }
+                },
+                'does not return an error': function (err, response) {
+                    assert.isNull(err);
+                }
             }
-        }
-    },
-    'a request with no `REQUEST_METHOD`': {
-        topic: function () {
-            var self = this;
-            mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
-                if (err) {
-                    return self.callback(err, null);
-                }
-                return map.mapserv(
+        },
+        'with no `REQUEST_METHOD` returns a response': {
+            topic: function (map) {
+                map.mapserv(
                     {
                         // empty
                     },
-                    self.callback);
-            });
-        },
-        'returns a response': {
-            'which is an object': function (response) {
+                    this.callback);
+            },
+            'which is an object': function (err, response) {
                 assert.instanceOf(response, Object);
             },
-            'which only has a `Content-Length` header': function (response) {
+            'which only has a `Content-Length` header': function (err, response) {
                 assert.lengthOf(response.headers, 1);
                 assert.isArray(response.headers['Content-Length']);
                 assert.lengthOf(response.headers['Content-Length'], 1);
                 assert.isNumber(response.headers['Content-Length'][0]);
                 assert.isTrue(response.headers['Content-Length'][0] > 0);
             },
-            'which has text data as a `Buffer`': function (response) {
+            'which has text data as a `Buffer`': function (err, response) {
                 assert.isObject(response.data);
                 assert.instanceOf(response.data, buffer.Buffer);
                 assert.isTrue(response.data.length > 0);
+            },
+            'which has an error': function (err, response) {
+                assert.instanceOf(err, Error);
+                assert.equal(err.message, 'No request parameters loaded');
             }
         },
-        'does not return an error': function (err, response) {
-            assert.isNull(err);
-        }
-    },
-    'a request with a `REQUEST_METHOD` but no `QUERY_STRING`': {
-        topic: function () {
-            var self = this;
-            mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
-                if (err) {
-                    return self.callback(err, null);
-                }
+        'with a `REQUEST_METHOD` but no `QUERY_STRING` returns a response': {
+            topic: function (map) {
                 return map.mapserv(
                     {
                         'REQUEST_METHOD': 'GET'
                         // no QUERY_STRING
                     },
-                    self.callback);
-            });
-        },
-        'returns a response': {
-            'which is an object': function (response) {
+                    this.callback);
+            },
+            'which is an object': function (err, response) {
                 assert.instanceOf(response, Object);
             },
-            'which has the correct headers': function (response) {
+            'which has the correct headers': function (err, response) {
                 assert.lengthOf(response.headers, 2);
 
                 // check the content-type
@@ -689,15 +660,16 @@ vows.describe('mapserv').addBatch({
                 assert.isNumber(response.headers['Content-Length'][0]);
                 assert.isTrue(response.headers['Content-Length'][0] > 0);
             },
-            'which has text data as a `Buffer`': function (response) {
+            'which has text data as a `Buffer`': function (err, response) {
                 assert.isObject(response.data);
                 assert.instanceOf(response.data, buffer.Buffer);
                 assert.isTrue(response.data.length > 0);
                 assert.equal(response.data.toString(), "No query information to decode. QUERY_STRING not set.\n");
+            },
+            'returns an error': function (err, response) {
+                assert.instanceOf(err, Error);
+                assert.equal(err.message, 'No request parameters loaded');
             }
-        },
-        'does not return an error': function (err, response) {
-            assert.isNull(err);
         }
     }
 }).export(module); // Export the Suite
