@@ -277,6 +277,9 @@ void Map::FromStringWork(uv_work_t *req) {
  * @param env A javascript object literal containing the CGI environment
  * variables which will direct the mapserv response.
  *
+ * @param body The optional string or buffer object representing the body of an
+ * HTTP request.
+ *
  * @param callback A function that is called on error or when the
  * resource has been created. It should have the signature
  * `callback(err, resource)`.

@@ -31,6 +31,12 @@
 /**
  * @file node-mapservutil.h
  * @brief This declares C utility functions used by the `Map` class.
+ *
+ * This is C code which encapsulates mapserver code that is not exposed by
+ * libmapserver and must therefore be duplicated.  It also includes code which
+ * is made available in libmapserver but which is not accessible to C++
+ * (i.e. the rest of the module) for linkage reasons; wrapping the code here
+ * enables it to be used elsewhere by C++.
  */
 
 #include "mapserver.h"
