@@ -104,7 +104,8 @@ vows.describe('mapserv').addBatch({
                     assert.equal(err.message, 'Map() is expected to be called as a constructor with the `new` keyword');
                 }
             }
-        }/*,
+        },
+
         'should have a `versions` property': {
             topic: function (mapserv) {
                 return mapserv.versions;
@@ -112,7 +113,7 @@ vows.describe('mapserv').addBatch({
             'which is an object': function (versions) {
                 assert.isObject(versions);
             },
-            'which contains the node-mapserv version': {
+            'which contains the `node-mapserv` version': {
                 topic: function (versions) {
                     return versions.node_mapserv;
                 },
@@ -127,25 +128,25 @@ vows.describe('mapserv').addBatch({
                     assert.equal(version, pversion);
                 }
             },
-            'which contains the mapserv version': {
+            'which contains the `mapserver` version': {
                 topic: function (versions) {
-                    return versions.mapserv;
+                    return versions.mapserver;
                 },
                 'as a string': function (version) {
                     assert.isString(version);
                     assert.isTrue(version.length > 0);
                 }
             },
-            'which contains the apr version': {
+            'which contains the `mapserver_details`': {
                 topic: function (versions) {
-                    return versions.apr;
+                    return versions.mapserver_details;
                 },
                 'as a string': function (version) {
                     assert.isString(version);
                     assert.isTrue(version.length > 0);
                 }
             }
-        },*/
+        }
     }
 }).addBatch({
     // Ensure `FromFile` has the expected interface

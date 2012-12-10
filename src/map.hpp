@@ -33,6 +33,9 @@
  * @brief This declares the primary `Map` class.
  */
 
+/// The node-mapserv version string
+#define NODE_MAPSERV_VERSION "0.1.0"
+
 // Standard headers
 #include <string>
 #include <map>

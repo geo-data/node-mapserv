@@ -99,25 +99,13 @@ extern "C" {
     
     Map::Init(target);
 
-    /*// versioning information
+    // versioning information
     Local<Object> versions = Object::New();
-    versions->Set(String::NewSymbol("node_mapcache"), String::New(NODE_MAPCACHE_VERSION));
-    versions->Set(String::NewSymbol("mapcache"), String::New(MAPCACHE_VERSION));
-    versions->Set(String::NewSymbol("apr"), String::New(APR_VERSION_STRING));
+    versions->Set(String::NewSymbol("node_mapserv"), String::New(NODE_MAPSERV_VERSION));
+    versions->Set(String::NewSymbol("mapserver"), String::New(MS_VERSION));
+    versions->Set(String::NewSymbol("mapserver_details"), String::New(msGetVersion()));
     target->Set(String::NewSymbol("versions"), versions);
 
-    // set the log levels
-    Local<Object> logLevels = Object::New();
-    NODE_MAPCACHE_CONSTANT(logLevels, DEBUG, MAPCACHE_DEBUG);
-    NODE_MAPCACHE_CONSTANT(logLevels, INFO, MAPCACHE_INFO);
-    NODE_MAPCACHE_CONSTANT(logLevels, NOTICE, MAPCACHE_NOTICE);
-    NODE_MAPCACHE_CONSTANT(logLevels, WARN, MAPCACHE_WARN);
-    NODE_MAPCACHE_CONSTANT(logLevels, ERROR, MAPCACHE_ERROR);
-    NODE_MAPCACHE_CONSTANT(logLevels, CRIT, MAPCACHE_CRIT);
-    NODE_MAPCACHE_CONSTANT(logLevels, ALERT, MAPCACHE_ALERT);
-    NODE_MAPCACHE_CONSTANT(logLevels, EMERG, MAPCACHE_EMERG);
-    target->Set(String::NewSymbol("logLevels"), logLevels);
-    */
     AtExit(Cleanup);
   }
 }
