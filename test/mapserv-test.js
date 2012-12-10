@@ -45,6 +45,25 @@ var vows = require('vows'),
     buffer = require('buffer'),
     mapserv = require('../lib/mapserv');
 
+// Dummy request object used for testing `createCGIEnvironment`
+function dummyRequest() {
+    var req = {
+        url: 'http://example.com/foo/bar?key=value',
+        httpVersion: '1.1',
+        method: 'POST',
+        connection: {
+            remoteAddress: '127.0.0.0'
+        },
+        headers: {
+            'content-length': '22',
+            host: 'localhost:80',
+            accept: '*/*'
+        }
+    };
+
+    return req;
+}
+
 vows.describe('mapserv').addBatch({
     // Ensure the module has the expected interface
 
@@ -145,6 +164,15 @@ vows.describe('mapserv').addBatch({
                     assert.isString(version);
                     assert.isTrue(version.length > 0);
                 }
+            }
+        },
+
+        'should have a `createCGIEnvironment` property': {
+            topic: function (mapserv) {
+                return mapserv.createCGIEnvironment;
+            },
+            'which is a function': function (func) {
+                assert.isFunction(func);
             }
         }
     }
@@ -671,6 +699,31 @@ vows.describe('mapserv').addBatch({
                 assert.instanceOf(err, Error);
                 assert.equal(err.message, 'No request parameters loaded');
             }
+        }
+    }
+}).addBatch({
+    // Ensure `createCGIEnvironment` works as expected
+    'calling `createCGIEnvironment`': {
+        topic: mapserv.createCGIEnvironment(dummyRequest(), {
+            SCRIPT_NAME: '/testing' // overwrite a variable
+        }),
+        
+        'should produce the expected CGI environment': function (env) {
+            assert.isObject(env);
+            assert.deepEqual(env, {
+                SERVER_SOFTWARE: 'Node.js',
+                SERVER_NAME: 'localhost',
+                GATEWAY_INTERFACE: 'CGI/1.1',
+                SERVER_PROTOCOL: 'HTTP/1.1',
+                SERVER_PORT: '80',
+                REQUEST_METHOD: 'POST',
+                PATH_INFO: '/foo/bar',
+                PATH_TRANSLATED: path.resolve(path.join('.', 'foo/bar')),
+                SCRIPT_NAME: '/testing',
+                QUERY_STRING: 'key=value',
+                REMOTE_ADDR: '127.0.0.0',
+                CONTENT_LENGTH: '22',
+                HTTP_ACCEPT: '*/*' });
         }
     }
 }).export(module); // Export the Suite
