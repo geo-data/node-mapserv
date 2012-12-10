@@ -380,9 +380,49 @@ vows.describe('mapserv').addBatch({
             mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), this.callback);
         },
 
-        'requires two valid arguments': {
+        'works with two valid arguments': {
             topic: function (map) {
                 return typeof(map.mapserv({}, function(err, response) {
+                    // do nothing
+                }));
+            },
+            'returning undefined when called': function (retval) {
+                assert.equal(retval, 'undefined');
+            }
+        },
+        'works with body data as a string': {
+            topic: function (map) {
+                return typeof(map.mapserv({}, "mode=map&layer=credits", function(err, response) {
+                    // do nothing
+                }));
+            },
+            'returning undefined when called': function (retval) {
+                assert.equal(retval, 'undefined');
+            }
+        },
+        'works with body data as a buffer': {
+            topic: function (map) {
+                return typeof(map.mapserv({}, new Buffer("mode=map&layer=credits"), function(err, response) {
+                    // do nothing
+                }));
+            },
+            'returning undefined when called': function (retval) {
+                assert.equal(retval, 'undefined');
+            }
+        },
+        'works with body data as `null`': {
+            topic: function (map) {
+                return typeof(map.mapserv({}, null, function(err, response) {
+                    // do nothing
+                }));
+            },
+            'returning undefined when called': function (retval) {
+                assert.equal(retval, 'undefined');
+            }
+        },
+        'works with body data as `undefined`': {
+            topic: function (map) {
+                return typeof(map.mapserv({}, undefined, function(err, response) {
                     // do nothing
                 }));
             },
@@ -400,20 +440,20 @@ vows.describe('mapserv').addBatch({
             },
             'throwing an error': function (err) {
                 assert.instanceOf(err, Error);
-                assert.equal(err.message, 'usage: Map.mapserv(env, callback)');
+                assert.equal(err.message, 'usage: Map.mapserv(env, [body], callback)');
             }
         },
-        'fails with three arguments': {
+        'fails with four arguments': {
             topic: function (map) {
                 try {
-                    return map.mapserv('1st', '2nd', '3rd');
+                    return map.mapserv('1st', '2nd', '3rd', '4th');
                 } catch (e) {
                     return e;
                 }
             },
             'throwing an error': function (err) {
                 assert.instanceOf(err, Error);
-                assert.equal(err.message, 'usage: Map.mapserv(env, callback)');
+                assert.equal(err.message, 'usage: Map.mapserv(env, [body], callback)');
             }
         },
         'requires an object for the first argument': {
@@ -448,7 +488,7 @@ vows.describe('mapserv').addBatch({
 }).addBatch({
     // Ensure mapserv functions as expected
 
-    'requesting a valid map': {
+    'requesting a valid map via `GET`': {
         topic: function () {
             var self = this;
             mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
@@ -471,7 +511,7 @@ vows.describe('mapserv').addBatch({
                 assert.lengthOf(response.headers, 2);
 
                 // check the content-type
-                assert.isArray(response.headers['Content-Type']);                
+                assert.isArray(response.headers['Content-Type']);
                 assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
 
                 // check the content-length
@@ -488,6 +528,98 @@ vows.describe('mapserv').addBatch({
         },
         'does not return an error': function (err, response) {
             assert.isNull(err);
+        }
+    },
+    'requesting a valid map via `POST`': {
+        'using a string': {
+            topic: function () {
+                var self = this,
+                    body = 'mode=map&layer=credits';
+                mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
+                    if (err) {
+                        return self.callback(err, null);
+                    }
+                    return map.mapserv(
+                        {
+                            'REQUEST_METHOD': 'POST',
+                            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+                            'CONTENT_LENGTH': body.length
+                        },
+                        body,
+                        self.callback);
+                });
+            },
+            'returns a response': {
+                'which is an object': function (response) {
+                    assert.instanceOf(response, Object);
+                },
+                'which has the correct headers': function (response) {
+                    assert.lengthOf(response.headers, 2);
+
+                    // check the content-type
+                    assert.isArray(response.headers['Content-Type']);
+                    assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
+
+                    // check the content-length
+                    assert.isArray(response.headers['Content-Length']);
+                    assert.lengthOf(response.headers['Content-Length'], 1);
+                    assert.isNumber(response.headers['Content-Length'][0]);
+                    assert.isTrue(response.headers['Content-Length'][0] > 0);
+                },
+                'which returns image data as a `Buffer`': function (response) {
+                    assert.isObject(response.data);
+                    assert.instanceOf(response.data, buffer.Buffer);
+                    assert.isTrue(response.data.length > 0);
+                }
+            },
+            'does not return an error': function (err, response) {
+                assert.isNull(err);
+            }
+        },
+        'using a buffer': {
+            topic: function () {
+                var self = this,
+                    body = new Buffer('mode=map&layer=credits');
+                mapserv.Map.FromFile(path.join(__dirname, 'valid.map'), function (err, map) {
+                    if (err) {
+                        return self.callback(err, null);
+                    }
+                    return map.mapserv(
+                        {
+                            'REQUEST_METHOD': 'POST',
+                            'CONTENT_TYPE': 'application/x-www-form-urlencoded',
+                            'CONTENT_LENGTH': body.length
+                        },
+                        body,
+                        self.callback);
+                });
+            },
+            'returns a response': {
+                'which is an object': function (response) {
+                    assert.instanceOf(response, Object);
+                },
+                'which has the correct headers': function (response) {
+                    assert.lengthOf(response.headers, 2);
+
+                    // check the content-type
+                    assert.isArray(response.headers['Content-Type']);
+                    assert.deepEqual(response.headers['Content-Type'],  [ 'image/png' ]);
+
+                    // check the content-length
+                    assert.isArray(response.headers['Content-Length']);
+                    assert.lengthOf(response.headers['Content-Length'], 1);
+                    assert.isNumber(response.headers['Content-Length'][0]);
+                    assert.isTrue(response.headers['Content-Length'][0] > 0);
+                },
+                'which returns image data as a `Buffer`': function (response) {
+                    assert.isObject(response.data);
+                    assert.instanceOf(response.data, buffer.Buffer);
+                    assert.isTrue(response.data.length > 0);
+                }
+            },
+            'does not return an error': function (err, response) {
+                assert.isNull(err);
+            }
         }
     },
     'a request with no `REQUEST_METHOD`': {
@@ -548,7 +680,7 @@ vows.describe('mapserv').addBatch({
                 assert.lengthOf(response.headers, 2);
 
                 // check the content-type
-                assert.isArray(response.headers['Content-Type']);                
+                assert.isArray(response.headers['Content-Type']);
                 assert.deepEqual(response.headers['Content-Type'],  [ 'text/html' ]);
 
                 // check the content-length

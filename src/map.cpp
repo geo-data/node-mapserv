@@ -116,7 +116,7 @@ Handle<Value> Map::FromFileAsync(const Arguments& args) {
   REQ_STR_ARG(0, mapfile);
   REQ_FUN_ARG(1, callback);
 
-  Baton *baton = new Baton();
+  MapfileBaton *baton = new MapfileBaton();
 
   baton->request.data = baton;
   baton->map = NULL;
@@ -137,7 +137,7 @@ void Map::FromFileWork(uv_work_t *req) {
   /* No HandleScope! This is run in a separate thread: *No* contact
      should be made with the Node/V8 world here. */
 
-  Baton *baton = static_cast<Baton*>(req->data);
+  MapfileBaton *baton = static_cast<MapfileBaton*>(req->data);
   
   baton->map = msLoadMap(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
@@ -164,7 +164,7 @@ void Map::FromFileWork(uv_work_t *req) {
 void Map::FromFileAfter(uv_work_t *req) {
   HandleScope scope;
 
-  Baton *baton = static_cast<Baton*>(req->data);
+  MapfileBaton *baton = static_cast<MapfileBaton*>(req->data);
   Handle<Value> argv[2];
 
   if (!baton->error.empty()) {
@@ -226,7 +226,7 @@ Handle<Value> Map::FromStringAsync(const Arguments& args) {
 
   REQ_FUN_ARG(1, callback);
 
-  Baton *baton = new Baton();
+  MapfileBaton *baton = new MapfileBaton();
   baton->request.data = baton;
   baton->map = NULL;
   baton->callback = Persistent<Function>::New(callback);
@@ -248,7 +248,7 @@ void Map::FromStringWork(uv_work_t *req) {
   /* No HandleScope! This is run in a separate thread: *No* contact
      should be made with the Node/V8 world here. */
 
-  Baton *baton = static_cast<Baton*>(req->data);
+  MapfileBaton *baton = static_cast<MapfileBaton*>(req->data);
 
   baton->map = msLoadMapFromString(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
@@ -283,12 +283,32 @@ void Map::FromStringWork(uv_work_t *req) {
  */
 Handle<Value> Map::MapservAsync(const Arguments& args) {
   HandleScope scope;
+  string body;
+  Local<Object> env;
+  Local<Function> callback;
 
-  if (args.Length() != 2) {
-    THROW_CSTR_ERROR(Error, "usage: Map.mapserv(env, callback)");
+  switch (args.Length()) {
+  case 2:
+    ASSIGN_OBJ_ARG(0, env);
+    ASSIGN_FUN_ARG(1, callback);
+    break;
+  case 3:
+    ASSIGN_OBJ_ARG(0, env);
+
+    if (args[1]->IsString()) {
+      body = *String::Utf8Value(args[1]->ToString());
+    } else if (Buffer::HasInstance(args[1])) {
+      Local<Object> buffer = args[1]->ToObject();
+      body = string(Buffer::Data(buffer), Buffer::Length(buffer));
+    } else if (!args[1]->IsNull() and !args[1]->IsUndefined()) {
+      THROW_CSTR_ERROR(TypeError, "Argument 1 must be one of a string; buffer; null; undefined");
+    }
+
+    ASSIGN_FUN_ARG(2, callback);
+    break;
+  default:
+    THROW_CSTR_ERROR(Error, "usage: Map.mapserv(env, [body], callback)");
   }
-  REQ_OBJ_ARG(0, env);
-  REQ_FUN_ARG(1, callback);
 
   Map* self = ObjectWrap::Unwrap<Map>(args.This());
   MapBaton *baton = new MapBaton();
@@ -297,6 +317,7 @@ Handle<Value> Map::MapservAsync(const Arguments& args) {
   baton->self = self;
   baton->callback = Persistent<Function>::New(callback);
   baton->map = self->map;
+  baton->body = body;
 
   // Convert the environment object to a `std::map`
   const Local<Array> properties = env->GetPropertyNames();
@@ -332,10 +353,15 @@ void Map::MapservWork(uv_work_t *req) {
   mapservObj* mapserv = msAllocMapServObj();
   bool reportError = false;     // flag an error as worthy of reporting
 
-  msIO_installStdoutToBuffer(); // ensure stdout is buffered
+  msIO_installStdinFromBuffer(); // required to catch POSTS without data
+  msIO_installStdoutToBuffer();  // required to capture mapserver output
 
   // load the CGI parameters from the environment object
-  mapserv->request->NumParams = wrap_loadParams(mapserv->request, GetEnv, NULL, 0, static_cast<void *>(&(baton->env)));
+  mapserv->request->NumParams = wrap_loadParams(mapserv->request,
+                                                GetEnv,
+                                                const_cast<char *>(baton->body.c_str()),
+                                                baton->body.length(),
+                                                static_cast<void *>(&(baton->env)));
   if( mapserv->request->NumParams == -1 ) {
     // no errors are generated but messages are output instead
     reportError = true;
