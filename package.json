@@ -7,6 +7,10 @@
     "name": "mapserv",
     "description": "All the functionality of Mapserver's mapserv CGI program made available to Node",
     "version": "0.1.0",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/geo-data/node-mapserv.git"
+    },
     "main": "lib/mapserv.js",
     "engines": {
         "node": ">=0.8"
