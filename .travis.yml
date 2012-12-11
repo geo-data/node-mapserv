@@ -8,7 +8,7 @@ env:
 #  - MAPSERVER_COMMIT=rel-6-0-0  # v6.0.0
 #  - MAPSERVER_COMMIT=rel-6-0-1  # v6.0.1
 #  - MAPSERVER_COMMIT=rel-6-0-2  # v6.0.2
-#  - MAPSERVER_COMMIT=rel-6-0-3  # v6.0.3
+  - MAPSERVER_COMMIT=rel-6-0-3  # v6.0.3
   - MAPSERVER_COMMIT=rel-6-2-0  # v6.2.0
   - MAPSERVER_COMMIT=           # repository HEAD
 before_install:
