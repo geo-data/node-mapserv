@@ -143,7 +143,7 @@ Versioning information is also available. From the Node REPL:
 
 * Node.js >=0.8
 
-* Mapserver >= 6.0 (If you are using `Map.FromString` ensure that you are using
+* Mapserver >= 6.2 (If you are using `Map.FromString` ensure that you are using
   Mapserver >= 6.3 or alternatively you have applied
   [this patch](https://github.com/mapserver/mapserver/commit/e9e48941e9b02378de57a8ad6c6aa0d070816b06).
   Mapserver *must* be compiled with support for threads.
