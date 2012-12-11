@@ -3,7 +3,7 @@
 language: node_js
 node_js:
   - 0.8
-  - 0.9
+#  - 0.9
 env:
 #  - MAPSERVER_COMMIT=rel-6-0-0  # v6.0.0
 #  - MAPSERVER_COMMIT=rel-6-0-1  # v6.0.1
@@ -14,3 +14,4 @@ env:
 before_install:
   - sudo apt-get install libgif-dev                   # mapserver dependencies
   - sh ./tools/install-deps.sh /tmp $MAPSERVER_COMMIT # install the dependencies
+  - export PATH=/tmp/mapserver-install/bin:${PATH} # ensure `node-gyp` can find `mapserver-config`
