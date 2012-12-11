@@ -1,5 +1,7 @@
 # Node Mapserv
 
+[![Build Status](https://secure.travis-ci.org/geo-data/node-mapserv.png)](http://travis-ci.org/geo-data/node-mapserv)
+
 `node-mapserv` is a Node.js module which makes the functionality provided by
 the traditional Mapserver `mapserv` CGI program available to Node code.
 

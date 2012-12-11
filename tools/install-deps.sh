@@ -33,6 +33,9 @@ autoconf || die "autoconf failed"
 make || die "make failed"
 make install || die "make install failed"
 
-# point NPM at the build
+# ensure `node-gyp` can find `mapserver-config`
+export PATH=${PREFIX}/mapserver-install/bin:${PATH}
+
+# point `npm` at the build
 npm config set mapserver:lib_dir ${PREFIX}/mapserver-install/lib
 npm config set mapserver:include_dir ${PREFIX}/mapserver
