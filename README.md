@@ -24,7 +24,7 @@ declarative API for rendering mapserver mapfiles with the following benefits:
 * Adherence to the Node non-blocking philosophy: operations involving I/O (such
   as parsing mapfiles and rendering maps) are performed asynchronously in child
   threads which keeps the main event loop snappy.  Rough benchmarks suggest
-  performance is comparable to fastcgi mapserv (using `examples\wms-server.js`
+  performance is comparable to fastcgi mapserv (using `examples/wms-server.js`
   with a modified mapfile).
 
 ## Usage
@@ -148,8 +148,8 @@ Versioning information is also available. From the Node REPL:
 
 ## Installation
 
-* Ensure Node.js(http://nodejs.org) and Mapserver(http://www.mapserver.org) are
-  available on your system.
+* Ensure [Node.js](http://nodejs.org) and [Mapserver](http://www.mapserver.org)
+  are available on your system.
 
 * Tell `node-mapserv` where `libmapserver` resides on the system: if Mapserver
   has been installed in a non standard location you will need to tell the
@@ -192,24 +192,24 @@ Alternatively if you are developing or debugging you can bypass `npm` and use
   `node-mapserv` makes heavy use of threads and although this is safe for core
   mapserver operations, some extended features should be avoided.
 
-* Become familiar with mapserver
+* Become familiar with Mapserver
   [runtime substitution](http://mapserver.org/cgi/runsub.html): this allows you
   to alter portions of a mapfile based on data passed via a CGI request.
 
 * Use the
   [`PROCESSING "CLOSE_CONNECTION=DEFER"`](http://mapserver.org/mapfile/layer.html#index-49)
   directive in you mapfiles in order to cache data connections where possible:
-  `Map` instances wrap persistent mapfile data structures and therefore can
+  `Map` instances wrap persistent mapfile data structures and can therefore
   benefit from pooling persistent data connections in the same way as fastcgi
   mapserv.
 
-* Check out `node-mapcache`(https://npmjs.org/package/mapcache): this can work
-  well in combination with `node-mapserv` for generating tiled maps.
+* Check out [`node-mapcache`](https://npmjs.org/package/mapcache): this can
+  work well in combination with `node-mapserv` for generating tiled maps.
 
 ## Bugs
 
 Please add bugs or issues to the
-[GitHub issue tracker](https://github.com/geo-data/node-mapcache).
+[GitHub issue tracker](https://github.com/geo-data/node-mapserv).
 
 ## Documentation
 
