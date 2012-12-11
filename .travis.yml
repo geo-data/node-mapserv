@@ -13,5 +13,6 @@ env:
   - MAPSERVER_COMMIT=           # repository HEAD
 before_install:
   - sudo apt-get install libgif-dev                   # mapserver dependencies
+  - sudo apt-get install libgd2-xpm-dev               # required for Mapserver v6.0.*
   - sh ./tools/install-deps.sh /tmp $MAPSERVER_COMMIT # install the dependencies
   - export PATH=/tmp/mapserver-install/bin:${PATH} # ensure `node-gyp` can find `mapserver-config`
