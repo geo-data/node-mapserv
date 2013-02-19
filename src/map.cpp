@@ -32,6 +32,7 @@
 
 #include "map.hpp"
 #include "node-mapservutil.h"
+#include <iostream>
 
 Persistent<FunctionTemplate> Map::map_template;
 
@@ -142,7 +143,7 @@ void Map::FromFileWork(uv_work_t *req) {
   baton->map = msLoadMap(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || error->isreported) {
+    if (!error || error->code == MS_NOERR || error->isreported || !strlen(error->message)) {
       baton->error = "Could not load mapfile";
     } else {
       baton->error = error->message;
@@ -253,7 +254,7 @@ void Map::FromStringWork(uv_work_t *req) {
   baton->map = msLoadMapFromString(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || error->isreported) {
+    if (!error || error->code == MS_NOERR || error->isreported || !strlen(error->message)) {
       baton->error = "Could not load mapfile";
     } else {
       baton->error = error->message;

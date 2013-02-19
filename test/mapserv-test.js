@@ -400,6 +400,45 @@ vows.describe('mapserv').addBatch({
                 assert.equal('Parsing error near (LAYER):(line 14)', err.message);
             }
         }
+    },
+    'A mapfile buffer with a comment': {
+        topic: "MAP \
+    NAME DEMO \
+    STATUS ON \
+    SIZE 150 150 \
+    EXTENT 0 0 150 150 \
+    IMAGECOLOR 255 255 255 \
+    IMAGETYPE png \
+    LAYER \
+        NAME foo \
+        TYPE POINT \
+        STATUS DEFAULT \
+        TRANSFORM False \
+        FEATURE \
+            POINTS \
+                50 50 \
+            END \
+        END \
+        CLASS \
+            LABEL \
+                SIZE 10 \
+                COLOR 0 0 0 \
+                TYPE BITMAP \
+                TEXT \"hello\" # doesn't work\
+            END \
+        END \
+    END \
+END",
+        'when loaded': {
+            topic: function (mapfile) {
+                mapserv.Map.FromString(mapfile, this.callback); // load the map from a string
+            },
+            'results in an error': function (err, result) {
+                assert.instanceOf(err, Error);
+                assert.equal(undefined, result);
+                assert.equal('Could not load mapfile', err.message);
+            }
+        }
     }
 }).addBatch({
     // Ensure `Map.mapserv` has the expected interface
