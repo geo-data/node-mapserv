@@ -45,10 +45,6 @@ parser.add_option("--include",
                   action="store_true", default=False,
                   help="output the mapserver include path")
 
-parser.add_option("--libraries",
-                  action="store_true", default=False,
-                  help="output the mapserver library link option")
-
 parser.add_option("--ldflags",
                   action="store_true", default=False,
                   help="output the mapserver library rpath option")
@@ -58,13 +54,9 @@ parser.add_option("--ldflags",
 if options.include:
     print os.environ.get('npm_config_mapserv_include_dir', '')
 
-if options.libraries:
-    lib_dir = get_lib_dir()
-    if lib_dir:
-        print "-L%s" % lib_dir
-
 if options.ldflags:
     # write the library path into the resulting binary
     lib_dir = get_lib_dir()
     if lib_dir:
-        print "-Wl,-rpath=%s" % lib_dir
+        print "-Wl,-rpath=%s -L%s" % (lib_dir, lib_dir)
+    print '-Wl,--no-as-needed,-lmapserver'
