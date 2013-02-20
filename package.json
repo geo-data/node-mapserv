@@ -6,7 +6,7 @@
     "author": "Homme Zwaagstra <hrz@geodata.soton.ac.uk>",
     "name": "mapserv",
     "description": "All the functionality of Mapserver's mapserv CGI program made available to Node",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "repository": {
         "type": "git",
         "url": "http://github.com/geo-data/node-mapserv.git"
