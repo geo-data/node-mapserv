@@ -407,6 +407,7 @@ void Map::MapservWork(uv_work_t *req) {
   }
 
   // clean up
+  msIO_resetHandlers();
   msFreeMapServObj(mapserv);
   return;
 }
