@@ -124,7 +124,11 @@ Handle<Value> Map::FromFileAsync(const Arguments& args) {
   baton->callback = Persistent<Function>::New(callback);
   baton->mapfile = *mapfile;
 
-  uv_queue_work(uv_default_loop(), &baton->request, FromFileWork, FromFileAfter);
+  uv_queue_work(uv_default_loop(),
+                &baton->request,
+                FromFileWork,
+                (uv_after_work_cb) FromFileAfter);
+
   return Undefined();
 }
 
@@ -235,7 +239,11 @@ Handle<Value> Map::FromStringAsync(const Arguments& args) {
 
   // Run in a different thread. Note there is *no* `FromStringAfter`:
   // `FromFileAfter` is used instead.
-  uv_queue_work(uv_default_loop(), &baton->request, FromStringWork, FromFileAfter);
+  uv_queue_work(uv_default_loop(),
+                &baton->request,
+                FromStringWork,
+                (uv_after_work_cb) FromFileAfter);
+
   return Undefined();
 }
 
@@ -336,7 +344,11 @@ Handle<Value> Map::MapservAsync(const Arguments& args) {
 
   self->Ref(); // increment reference count so map is not garbage collected
 
-  uv_queue_work(uv_default_loop(), &baton->request, MapservWork, MapservAfter);
+  uv_queue_work(uv_default_loop(),
+                &baton->request,
+                MapservWork,
+                (uv_after_work_cb) MapservAfter);
+
   return Undefined();
 }
 
