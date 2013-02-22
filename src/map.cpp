@@ -32,7 +32,6 @@
 
 #include "map.hpp"
 #include "node-mapservutil.h"
-#include <iostream>
 
 Persistent<FunctionTemplate> Map::map_template;
 
