@@ -461,9 +461,11 @@ void Map::MapservAfter(uv_work_t *req) {
   }
   result->Set(headers_symbol, headers);
 
-  // set the response data as a Node Buffer object
+  // set the response data as a Node Buffer object. This is zero-copied from
+  // mapserver and free'd when the buffer is garbage collected.
   if (buffer && buffer->data) {
-    result->Set(data_symbol, Buffer::New((char *)buffer->data, buffer->size)->handle_);
+    result->Set(data_symbol,
+                Buffer::New((char *)buffer->data, buffer->size, FreeBuffer, NULL)->handle_);
 
     // add the content-length header
     Local<Array> values = Array::New(1);
@@ -482,9 +484,6 @@ void Map::MapservAfter(uv_work_t *req) {
 
   // clean up
   if (buffer) {
-    if (buffer->data && buffer->owns_data) {
-      msFree(buffer->data);
-    }
     delete baton->buffer;
     baton->buffer = NULL;
   }

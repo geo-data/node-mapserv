@@ -221,6 +221,12 @@ private:
 
   /// Create a map object for use in a mapserv request
   static mapObj* LoadMap(mapservObj *mapserv, mapObj *src);
+
+  /// Free data zero-copied to a `Buffer`
+  static void FreeBuffer(char *data, void *hint) {
+    msFree(data);
+    data = NULL;
+  }
 };
 
 /**
