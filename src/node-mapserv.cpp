@@ -57,7 +57,6 @@
  * @param arg Not currently used.
  */
 static void Cleanup(void* arg) {
-  msIO_Cleanup();
   msCleanup(0);
 }
 
