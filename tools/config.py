@@ -66,8 +66,10 @@ class Config(object):
         if lib_dir:
             # write the library path into the resulting binary
             ldflags += "-Wl,-rpath=%s -L%s\n" % (lib_dir, lib_dir)
-        ldflags += '-Wl,--no-as-needed,-lmapserver'
         return ldflags
+
+    def getCflags(self):
+        return ''
 
 class AutoconfConfig(Config):
     """Class for obtaining mapserver configuration pre mapserver 6.4
@@ -113,6 +115,19 @@ class AutoconfConfig(Config):
                     # whole file performing its thread check
                     libdir = os.path.join(arg, 'lib')
         return libdir
+
+    def getCflags(self):
+        # add includes from the Makefile
+        p = re.compile('^[A-Z]+_INC *= *(.+)$') # match an include header
+        matches = []
+        for line in self.iterMakefile():
+            match = p.match(line)
+            if match:
+                arg = match.groups()[0].strip()
+                if arg:
+                    matches.append(arg)
+
+        return ' '.join(matches)
 
 class CmakeConfig(Config):
     """Class for obtaining Mapserver configuration for versions >= 6.4
@@ -184,9 +199,17 @@ parser.add_option("--include",
                   action="store_true", default=False,
                   help="output the mapserver include path")
 
+parser.add_option("--libraries",
+                  action="store_true", default=False,
+                  help="output the mapserver library link option")
+
 parser.add_option("--ldflags",
                   action="store_true", default=False,
                   help="output the mapserver library rpath option")
+
+parser.add_option("--cflags",
+                  action="store_true", default=False,
+                  help="output the mapserver cflag options")
 
 (options, args) = parser.parse_args()
 
@@ -209,7 +232,16 @@ try:
     if options.include:
         print config.getIncludeDir()
 
+    if options.libraries:
+        lib_dir = config.getLibDir()
+        if lib_dir:
+            print "-L%s" % lib_dir
+
     if options.ldflags:
         print config.getLdflags()
+
+    if options.cflags:
+        print config.getCflags()
+
 except ConfigError, e:
     die(e)

@@ -13,13 +13,14 @@
       "conditions": [
         ['OS=="linux"', {
           'ldflags': [
+            '-Wl,--no-as-needed,-lmapserver',
             '<!@(python tools/config.py --ldflags)'
           ],
           'libraries': [
-            '<!@(mapserver-config --libs)'
+            '<!@(python tools/config.py --libraries)'
           ],
           'cflags': [
-            '<!@(mapserver-config --cflags)',
+            '<!@(python tools/config.py --cflags)',
             '-Wall'
           ],
         }],
