@@ -34,7 +34,7 @@
  */
 
 /// The node-mapserv version string
-#define NODE_MAPSERV_VERSION "0.1.1"
+#define NODE_MAPSERV_VERSION "0.1.2"
 
 // Standard headers
 #include <string>
