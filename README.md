@@ -175,7 +175,7 @@ Alternatively if you are developing or debugging you can bypass `npm` and use
     cd node-mapserv
 
     npm_config_mapserv_build_dir=/tmp/mapserver-6.2 \
-    node-gyp configure build
+    node-gyp --debug configure build
 
     npm install vows
     ./node_modules/.bin/vows --spec ./test/mapserv-test.js

@@ -20,7 +20,6 @@
           ],
           'cflags': [
             '<!@(mapserver-config --cflags)',
-            '-pedantic',
             '-Wall'
           ],
         }],
