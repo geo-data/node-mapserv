@@ -31,8 +31,7 @@ fi
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
     cmake CMakeLists.txt \
         -DWITH_THREADS=1 \
-        -DCMAKE_PREFIX_PATH=${PREFIX}/ \
-        -DCMAKE_INSTALL_PREFIX=${PREFIX}/ \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX}/mapserver-install \
         -DWITH_PROJ=0 \
         -DWITH_FRIBIDI=0 \
         -DWITH_FCGI=0 \

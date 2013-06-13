@@ -38,8 +38,11 @@ from optparse import OptionParser
 import os, sys
 import re
 
+def warn(msg):
+    print >> sys.stderr, msg
+
 def die(msg):
-    print >> sys.stderr, 'Configuration failed: %s' % msg
+    warn('Configuration failed: %s' % msg)
     sys.exit(1)
 
 class ConfigError(Exception):
@@ -198,8 +201,8 @@ try:
     try:
         config = CmakeConfig(build_dir)
     except ConfigError, e:
-        print "Failed to configure using Cmake: %s" % e
-        print "Attempting configuration using autotools..."
+        warn("Failed to configure using Cmake: %s" % e)
+        warn("Attempting configuration using autotools...")
         config = AutoconfConfig(build_dir)
 
     # output the requested options
