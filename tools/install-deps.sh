@@ -28,11 +28,15 @@ if [ -n "${MAPSERVER_COMMIT}" ]; then
 fi
 
 # build and install mapserver
-autoconf || die "autoconf failed"
-./configure --prefix=${PREFIX}/mapserver-install --with-threads || die "configure failed"
+if [ -f ./CMakeLists.txt ]; then # it's a cmake build
+    cmake CMakeLists.txt -DWITH_THREADS=1 -DCMAKE_PREFIX_PATH=${PREFIX}/ -DCMAKE_INSTALL_PREFIX=${PREFIX}/ || die "cmake failed"
+else                            # it's an autotools build
+    autoconf || die "autoconf failed"
+    ./configure --prefix=${PREFIX}/mapserver-install --with-threads || die "configure failed"
+fi
+
 make || die "make failed"
 make install || die "make install failed"
 
 # point `npm` at the build
-npm config set mapserv:lib_dir ${PREFIX}/mapserver-install/lib
-npm config set mapserv:include_dir ${PREFIX}/mapserver
+npm config set mapserv:build_dir ${PREFIX}/mapserver
