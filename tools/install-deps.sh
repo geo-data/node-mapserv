@@ -29,7 +29,19 @@ fi
 
 # build and install mapserver
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
-    cmake CMakeLists.txt -DWITH_THREADS=1 -DCMAKE_PREFIX_PATH=${PREFIX}/ -DCMAKE_INSTALL_PREFIX=${PREFIX}/ || die "cmake failed"
+    cmake CMakeLists.txt \
+        -DWITH_THREADS=1 \
+        -DCMAKE_PREFIX_PATH=${PREFIX}/ \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX}/ \
+        -DWITH_PROJ=0 \
+        -DWITH_FRIBIDI=0 \
+        -DWITH_FCGI=0 \
+        -DWITH_GEOS=0 \
+        -DWITH_GDAL=0 \
+        -DWITH_OGR=0 \
+        -DWITH_WCS=0 \
+        -DWITH_WFS=0 \
+        -DWITH_WMS=0 || die "cmake failed"
 else                            # it's an autotools build
     autoconf || die "autoconf failed"
     ./configure --prefix=${PREFIX}/mapserver-install --with-threads || die "configure failed"
