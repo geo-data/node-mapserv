@@ -224,9 +224,12 @@ try:
     try:
         config = CmakeConfig(build_dir)
     except ConfigError, e:
-        warn("Failed to configure using Cmake: %s" % e)
-        warn("Attempting configuration using autotools...")
-        config = AutoconfConfig(build_dir)
+        try:
+            config = AutoconfConfig(build_dir)
+        except ConfigError, e2:
+            warn("Failed to configure using Cmake: %s" % e)
+            warn("Attempting configuration using autotools...")
+            die(e2)
 
     # output the requested options
     if options.include:
