@@ -151,19 +151,13 @@ Versioning information is also available. From the Node REPL:
 ## Installation
 
 * Ensure [Node.js](http://nodejs.org) and [Mapserver](http://www.mapserver.org)
-  are available on your system.
+  are available on your system.  Mapserver will need to have been built from
+  source with the source directory still available.
 
-* Tell `node-mapserv` where `libmapserver` resides on the system: if Mapserver
-  has been installed in a non standard location you will need to tell the
-  module where it is installed along the following lines:
+* Point `node-mapserv` to the Mapserver source directory.  It uses the build
+  files to configure itself during installation.  E.g.
 
-    `npm config set mapserv:lib_dir /path/to/libs`
-
-* Tell `node-mapserv` where to find the Mapserver include files.  These are not
-  usually installed so you will likely need to specify where they are.  The
-  root directory of the Mapserver distribution works fine for this e.g.:
-
-    `npm config set mapserv:include_dir /tmp/mapserver-6.2`
+    `npm config set mapserv:build_dir /tmp/mapserver-6.2`
 
 * Get and install `node-mapserv`:
 
@@ -180,8 +174,7 @@ Alternatively if you are developing or debugging you can bypass `npm` and use
     git clone https://github.com/geo-data/node-mapserv.git
     cd node-mapserv
 
-    npm_config_mapserv_lib_dir=/path/to/libs/ \
-    npm_config_mapserv_include_dir=/tmp/mapserver-6.2 \
+    npm_config_mapserv_build_dir=/tmp/mapserver-6.2 \
     node-gyp configure build
 
     npm install vows
@@ -189,10 +182,11 @@ Alternatively if you are developing or debugging you can bypass `npm` and use
 
 ## Recommendations
 
-* Avoid using Mapserver features that are not thread safe (see the
-  [Mapserver FAQ](http://mapserver.org/faq.html?highlight=threads#is-mapserver-thread-safe)):
-  `node-mapserv` makes heavy use of threads and although this is safe for core
-  mapserver operations, some extended features should be avoided.
+* Avoid using Mapserver features that are not thread safe: `node-mapserv` makes
+  heavy use of threads and although this is safe for core mapserver operations,
+  some extended features should be avoided.  See the
+  [Mapserver FAQ](http://mapserver.org/faq.html?highlight=threads#is-mapserver-thread-safe)
+  and GitHub issues #4041 and #4044 for further details.
 
 * Become familiar with Mapserver
   [runtime substitution](http://mapserver.org/cgi/runsub.html): this allows you

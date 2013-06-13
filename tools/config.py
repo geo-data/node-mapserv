@@ -35,10 +35,146 @@ config set`.  This allows for a simple `npm install mapserv` to work.
 """
 
 from optparse import OptionParser
-import os
+import os, sys
+import re
 
-def get_lib_dir():
-    return os.environ.get('npm_config_mapserv_lib_dir', '')
+def die(msg):
+    print >> sys.stderr, 'Configuration failed: %s' % msg
+    sys.exit(1)
+
+class ConfigError(Exception):
+    pass
+
+class Config(object):
+    """Base class for obtaining Mapserver configuration information"""
+
+    def __init__(self, build_dir):
+        self.build_dir = build_dir
+
+    def getLibDir(self):
+        return ''
+
+    def getIncludeDir(self):
+        return os.path.join(self.build_dir)
+
+    def getLdflags(self):
+        lib_dir = self.getLibDir()
+        ldflags = ''
+        if lib_dir:
+            # write the library path into the resulting binary
+            ldflags += "-Wl,-rpath=%s -L%s\n" % (lib_dir, lib_dir)
+        ldflags += '-Wl,--no-as-needed,-lmapserver'
+        return ldflags
+
+class AutoconfConfig(Config):
+    """Class for obtaining mapserver configuration pre mapserver 6.4
+
+    Mapserver uses autotools for building and configuration in this version.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(AutoconfConfig, self).__init__(*args, **kwargs)
+        makefile = os.path.join(self.build_dir, 'Makefile')
+        if not os.path.exists(makefile):
+            raise ConfigError('Expected `Makefile` in %s' % self.build_dir)
+
+        self.makefile = makefile
+
+    def iterMakefile(self):
+        """
+        Iterate over the contents of the `Makefile`
+
+        This additionally checks to ensure that Mapserver has been compiled
+        with threads, raising an error if this is not the case.
+        """
+        with_threads = False
+        p = re.compile('^THREAD *= *(.*)$')
+        with open(self.makefile, 'r') as f:
+            for line in f:
+                match = p.match(line)
+                if match:
+                    with_threads = bool(match.groups()[0].strip())
+                yield line.rstrip()
+        if not with_threads:
+            raise ConfigError('Mapserver has not been compiled with support for threads')
+
+    def getLibDir(self):
+        p = re.compile('^prefix\s*=\s*(.+)$') # match the prefix
+        libdir = ''
+        for line in self.iterMakefile():
+            match = p.match(line)
+            if match:
+                arg = match.groups()[0].strip()
+                if arg:
+                    # we don't return here to let iterMakefile iterate over the
+                    # whole file performing its thread check
+                    libdir = os.path.join(arg, 'lib')
+        return libdir
+
+class CmakeConfig(Config):
+    """Class for obtaining Mapserver configuration for versions >= 6.4
+
+    Mapserver uses Cmake for building and configuration in this version.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CmakeConfig, self).__init__(*args, **kwargs)
+        cmake_cache = os.path.join(self.build_dir, 'CMakeCache.txt')
+        if not os.path.exists(cmake_cache):
+            raise ConfigError('Expected `CMakeCache.txt` in %s' % self.build_dir)
+
+        self.cmake_cache = cmake_cache
+
+    def iterCmakeCache(self):
+        """
+        Iterate over the contents of the `CmakeCache.txt` file
+
+        This additionally checks to ensure that Mapserver has been compiled
+        with threads, raising an error if this is not the case.
+        """
+        with_threads = False
+        p = re.compile('^WITH_THREADS:BOOL *= *(.+)$')
+        with open(self.cmake_cache, 'r') as f:
+            for line in f:
+                match = p.match(line)
+                if match:
+                    with_threads = match.groups()[0].strip() in ('ON', '1')
+                yield line
+        if not with_threads:
+            raise ConfigError('Mapserver has not been compiled with support for threads')
+
+    def getLibDir(self):
+        p = re.compile('^CMAKE_INSTALL_PREFIX:PATH *= *(.+)$') # match the prefix
+        lib_dir = ''
+        for line in self.iterCmakeCache():
+            match = p.match(line)
+            if match:
+                arg = match.groups()[0].strip()
+                if arg:
+                    # we don't return here to let iterCmakeCache iterate over
+                    # the whole file performing its thread check
+                    lib_dir = os.path.join(arg, 'lib')
+
+        return lib_dir
+
+    def getIncludeDir(self):
+        dirs = []
+        patterns = [
+            re.compile('^\w+_INCLUDE_DIR:PATH *= *(.+)$'), # match a library directory
+            re.compile('^MapServer_(?:SOURCE|BINARY)_DIR:STATIC *= *(.+)$') # match the mapserver directories
+            ]
+
+        for line in self.iterCmakeCache():
+            for p in patterns:
+                match = p.match(line)
+                if match:
+                    arg = match.groups()[0].strip()
+                    if arg:
+                        dirs.append(arg)
+                    continue # skip the other patterns
+
+        return ' '.join(dirs)
+
 
 parser = OptionParser()
 parser.add_option("--include",
@@ -51,12 +187,26 @@ parser.add_option("--ldflags",
 
 (options, args) = parser.parse_args()
 
-if options.include:
-    print os.environ.get('npm_config_mapserv_include_dir', '')
+try:
+    build_dir = os.environ['npm_config_mapserv_build_dir']
+except KeyError:
+    die('`npm config set mapserv:build_dir` has not been called')
 
-if options.ldflags:
-    # write the library path into the resulting binary
-    lib_dir = get_lib_dir()
-    if lib_dir:
-        print "-Wl,-rpath=%s -L%s" % (lib_dir, lib_dir)
-    print '-Wl,--no-as-needed,-lmapserver'
+# get the config object, trying the legacy autoconf build sytem first and
+# falling back to the new cmake system
+try:
+    try:
+        config = CmakeConfig(build_dir)
+    except ConfigError, e:
+        print "Failed to configure using Cmake: %s" % e
+        print "Attempting configuration using autotools..."
+        config = AutoconfConfig(build_dir)
+
+    # output the requested options
+    if options.include:
+        print config.getIncludeDir()
+
+    if options.ldflags:
+        print config.getLdflags()
+except ConfigError, e:
+    die(e)
