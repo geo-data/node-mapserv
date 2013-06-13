@@ -311,7 +311,7 @@ Handle<Value> Map::MapservAsync(const Arguments& args) {
     } else if (Buffer::HasInstance(args[1])) {
       Local<Object> buffer = args[1]->ToObject();
       body = string(Buffer::Data(buffer), Buffer::Length(buffer));
-    } else if (!args[1]->IsNull() and !args[1]->IsUndefined()) {
+    } else if (!args[1]->IsNull() && !args[1]->IsUndefined()) {
       THROW_CSTR_ERROR(TypeError, "Argument 1 must be one of a string; buffer; null; undefined");
     }
 
