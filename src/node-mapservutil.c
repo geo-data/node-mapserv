@@ -58,7 +58,7 @@ int wrap_loadParams(cgiRequestObj *request, char* (*getenv2)(const char*, void* 
 int updateMap(mapservObj *mapserv, mapObj *map) {
   int i, j;
 
-  if(1 || !msLookupHashTable(&(map->web.validation), "immutable")) {
+  if(!msLookupHashTable(&(map->web.validation), "immutable")) {
     /* check for any %variable% substitutions here, also do any map_ changes, we do this here so WMS/WFS  */
     /* services can take advantage of these "vendor specific" extensions */
     for(i=0; i<mapserv->request->NumParams; i++) {
