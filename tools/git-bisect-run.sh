@@ -53,7 +53,7 @@ if [ $EXIT -eq 139 ]; then EXIT=2; fi;
 
 # clean up
 cd $GIT_DIR
-#git status --short | cut -b 4- | xargs rm -rf
+git status --short | cut -b 4- | xargs rm -rf
 
 # return the vows exit status to git-bisect
 exit $EXIT
