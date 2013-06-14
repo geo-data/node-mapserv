@@ -137,9 +137,9 @@ Versioning information is also available. From the Node REPL:
 
 ## Requirements
 
-* Linux OS (although it should work on other Unices and ports to Windows and
-  other platforms supported by both Node and Mapserver should be possible:
-  patches welcome!).
+* Linux OS (although it should work on other Unices with minimal effort -
+  patches welcome!).  Although not currently supported, the module has been
+  built successfully on Windows - see `WINDOWS-INSTALL.md` for more details.
 
 * Node.js >=0.8
 
