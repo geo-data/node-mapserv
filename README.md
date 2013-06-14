@@ -29,6 +29,9 @@ declarative API for rendering mapserver mapfiles with the following benefits:
   performance is comparable to fastcgi mapserv (using `examples/wms-server.js`
   with a modified mapfile).
 
+* The module has a suite of tests that exercises the whole API. This suite has
+  been run through Valgrind to check for memory leaks.
+
 ## Usage
 
 It is assumed that you are familiar with
