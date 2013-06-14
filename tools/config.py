@@ -218,8 +218,8 @@ try:
 except KeyError:
     die('`npm config set mapserv:build_dir` has not been called')
 
-# get the config object, trying the legacy autoconf build sytem first and
-# falling back to the new cmake system
+# get the config object, trying the new cmake system first and falling back to
+# the legacy autoconf build sytem
 try:
     try:
         config = CmakeConfig(build_dir)
