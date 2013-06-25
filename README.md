@@ -220,11 +220,16 @@ Add tests for your changes to `test/mapserv-test.js` and run them:
 
     make test
 
-Finally perform code coverage analysis to ensure all code paths in your changes
-are tested (this requires `lcov`(http://ltp.sourceforge.net/coverage/lcov.php)
-be installed):
+Perform code coverage analysis to ensure all code paths in your changes are
+tested (this requires `lcov`(http://ltp.sourceforge.net/coverage/lcov.php) be
+installed):
 
     make cover
+
+Finally run the test suite through `valgrind` to ensure you haven't introduced
+any memory issues:
+
+    make valgrind
 
 And issue your pull request or patch...
 

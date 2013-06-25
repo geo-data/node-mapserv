@@ -7,6 +7,7 @@
 #  - `make build`: create a Debug build of the module
 #  - `make test`: run the tests
 #  - `make cover`: perform the code coverage analysis
+#  - `make valgrind`: run the test suite under valgrind
 #  - `make clean`: remove generated files
 #
 
@@ -50,6 +51,12 @@ build/Debug/bindings.node: $(NODE_GYP) src/*.hpp src/*.cpp src/*.h src/*.c
 test: $(test_deps)
 	$(VOWS) --spec ./test/mapserv-test.js
 
+# Run the test suite under valgrind
+valgrind: $(test_deps) $(ISTANBUL)
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes \
+	node --nouse_idle_notification --expose-gc \
+	$(VOWS) test/mapserv-test.js
+
 # Perform the code coverage
 cover: coverage/index.html
 coverage/index.html: coverage/node-mapserv.info
@@ -64,8 +71,11 @@ coverage/bindings.info: coverage/addon.info
 	lcov --extract coverage/addon.info '*node-mapserv/src/*' --output-file coverage/bindings.info
 coverage/addon.info: coverage/lcov.info
 	lcov --capture --base-directory src/ --directory . --output-file coverage/addon.info
+# This generates the JS lcov info as well as gcov `*.gcda` files:
 coverage/lcov.info: $(test_deps) $(ISTANBUL)
-	node --nouse_idle_notification --expose-gc $(ISTANBUL) cover --report lcovonly $(VOWS) -- test/mapserv-test.js
+	node --nouse_idle_notification --expose-gc \
+	$(ISTANBUL) cover --report lcovonly \
+	$(VOWS) -- test/mapserv-test.js
 
 # Install required node modules
 $(NODE_GYP):
