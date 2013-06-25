@@ -10,6 +10,18 @@
       "include_dirs": [
         "<!@(python tools/config.py --include)"
       ],
+      "configurations": {
+        # This augments the `Debug` configuration used when calling `node-gyp`
+        # with `--debug` to create code coverage files used by lcov
+        "Debug": {
+          "conditions": [
+            ['OS=="linux"', {
+              "cflags": ["--coverage"],
+              "ldflags": ["--coverage"]
+            }],
+          ]
+        },
+      },
       "conditions": [
         ['OS=="linux"', {
           'ldflags': [
@@ -22,7 +34,7 @@
           'cflags': [
             '<!@(python tools/config.py --cflags)',
             '-Wall'
-          ],
+          ]
         }],
         ['OS=="win"', {
             "variables": {

@@ -21,6 +21,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "vows":  "*"
+        "vows":  "*",
+        "istanbul": "*"
     }
 }

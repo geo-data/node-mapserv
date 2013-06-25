@@ -170,19 +170,6 @@ Versioning information is also available. From the Node REPL:
 
    `npm test mapserv`
 
-Alternatively if you are developing or debugging you can bypass `npm` and use
-`node-gyp` directly (which `npm` itself calls). For the latest version of
-`node-mapserv`, the above instructions roughly translate to:
-
-    git clone https://github.com/geo-data/node-mapserv.git
-    cd node-mapserv
-
-    npm_config_mapserv_build_dir=/tmp/mapserver-6.2 \
-    node-gyp --debug configure build
-
-    npm install vows
-    ./node_modules/.bin/vows --spec ./test/mapserv-test.js
-
 ## Recommendations
 
 * Avoid using Mapserver features that are not thread safe: `node-mapserv` makes
@@ -205,9 +192,39 @@ Alternatively if you are developing or debugging you can bypass `npm` and use
 * Check out [`node-mapcache`](https://npmjs.org/package/mapcache): this can
   work well in combination with `node-mapserv` for generating tiled maps.
 
+## Developing
+
+Start with checking out the latest copy of the code:
+
+    git clone https://github.com/geo-data/node-mapserv.git
+    cd node-mapserv
+
+Build the module in Debug mode using:
+
+    make build
+
+By default this uses the Mapserver build directory previously specified using
+`npm config set mapserv:build_dir`; to override this do something along the
+following lines:
+
+    make build npm_config_mapserv_build_dir=/tmp/mapserver-6.2
+
+Perform code coverage analysis (this requires
+`lcov`(http://ltp.sourceforge.net/coverage/lcov.php) be installed):
+
+    make cover
+
+Clean up all generated files:
+
+    make clean
+
+Finally test your changes:
+
+    make test
+
 ## Bugs
 
-Please add bugs or issues to the
+Please report bugs or issues using the
 [GitHub issue tracker](https://github.com/geo-data/node-mapserv).
 
 ## Documentation
