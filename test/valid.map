@@ -5,6 +5,7 @@ MAP
   EXTENT 0 0 4000 3000
   SIZE 400 300
   IMAGECOLOR 200 255 255
+  CONFIG "CGI_CONTEXT_URL" "1"
 
   WEB
     IMAGEPATH "./"
@@ -16,6 +17,7 @@ MAP
     STATUS DEFAULT
     TRANSFORM FALSE
     TYPE ANNOTATION
+    CLASSGROUP "group1"
     FEATURE
       POINTS
         200 150
@@ -23,9 +25,17 @@ MAP
       TEXT 'Hello world.  Mapserver rocks.'
     END
     CLASS
+      GROUP "group1"
       LABEL
         TYPE BITMAP
         COLOR 0 0 0
+      END
+    END
+    CLASS
+      GROUP "group2"
+      LABEL
+        TYPE BITMAP
+        COLOR 0 0 255
       END
     END
   END

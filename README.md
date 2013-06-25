@@ -29,8 +29,11 @@ declarative API for rendering mapserver mapfiles with the following benefits:
   performance is comparable to fastcgi mapserv (using `examples/wms-server.js`
   with a modified mapfile).
 
-* The module has a suite of tests that exercises the whole API. This suite has
-  been run through Valgrind to check for memory leaks.
+* Robustly tested: The module has a suite of tests that exercises the whole
+  API.  The tests provide 95% line coverage and 90% function coverage; excluded
+  code generally handles hard to replicate edge cases (e.g. memory
+  exhaustion). This suite has been run through Valgrind to check for memory
+  leaks.
 
 ## Usage
 
@@ -194,7 +197,7 @@ Versioning information is also available. From the Node REPL:
 
 ## Developing
 
-Start with checking out the latest copy of the code:
+Fork the code on GitHub or clone it:
 
     git clone https://github.com/geo-data/node-mapserv.git
     cd node-mapserv
@@ -209,18 +212,21 @@ following lines:
 
     make build npm_config_mapserv_build_dir=/tmp/mapserver-6.2
 
-Perform code coverage analysis (this requires
-`lcov`(http://ltp.sourceforge.net/coverage/lcov.php) be installed):
-
-    make cover
-
-Clean up all generated files:
+You may want to ensure you're building in a clean source tree in which case:
 
     make clean
 
-Finally test your changes:
+Add tests for your changes to `test/mapserv-test.js` and run them:
 
     make test
+
+Finally perform code coverage analysis to ensure all code paths in your changes
+are tested (this requires `lcov`(http://ltp.sourceforge.net/coverage/lcov.php)
+be installed):
+
+    make cover
+
+And issue your pull request or patch...
 
 ## Bugs
 

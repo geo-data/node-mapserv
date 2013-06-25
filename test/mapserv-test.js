@@ -43,7 +43,27 @@ var vows = require('vows'),
     fs = require('fs'),
     path = require('path'),
     buffer = require('buffer'),
+    mapserv;
+
+// Load node-mapserv.  We cause a failure the first time to ensure that certain
+// code branches in module initialisation are run.
+try {
+    // an invalid file path (checked in `msDebugInitFromEnv()`)...
+    process.env['MS_ERRORFILE'] = '/oops';
+    // ...causing module initialisation to fail
     mapserv = require('../lib/mapserv');
+} catch (e) {
+    delete process.env['MS_ERRORFILE']; // clear the problem
+    mapserv = require('../lib/mapserv'); // should be ok
+}
+
+// Exercise cleanup code by calling the V8 garbage collector.  This is only
+// available if node has been called with the `--expose-gc` option.
+if (typeof(global.gc) == 'function') {
+    process.on('exit', function onExit() {
+        global.gc();
+    });
+}
 
 // Dummy request object used for testing `createCGIEnvironment`
 function dummyRequest() {
@@ -56,8 +76,10 @@ function dummyRequest() {
         },
         headers: {
             'content-length': '22',
+            'content-type': 'application/x-www-form-urlencoded',
             host: 'localhost:80',
-            accept: '*/*'
+            accept: '*/*',
+            authorization: 'Basic WovZwuYYN2mWNO5='
         }
     };
 
@@ -102,6 +124,16 @@ vows.describe('mapserv').addBatch({
                 }
             },
             'which acts as a constructor': {
+                'requiring at least one argument': function (Map) {
+                    var err;
+                    try {
+                        err = new Map();
+                    } catch (e) {
+                        err = e;
+                    }
+                    assert.instanceOf(err, Error);
+                    assert.equal(err.message, 'usage: new Map(mapObj)');
+                },
                 'which cannot be instantiated from javascript': function (Map) {
                     var err;
                     try {
@@ -308,6 +340,21 @@ vows.describe('mapserv').addBatch({
                 assert.equal(err.message, 'Argument 0 must be a string or buffer');
             }
         },
+        'fails with an object that is not a buffer as the first argument': {
+            topic: function (FromString) {
+                try {
+                    return FromString(['not a buffer'], function(err, map) {
+                        // do nothing
+                    });
+                } catch (e) {
+                    return e;
+                }
+            },
+            'throwing an error otherwise': function (err) {
+                assert.instanceOf(err, TypeError);
+                assert.equal(err.message, 'Argument 0 must be a string or buffer');
+            }
+        },
         'requires a function for the second argument': {
             topic: function (FromString) {
                 try {
@@ -498,6 +545,21 @@ END",
                 assert.equal(retval, 'undefined');
             }
         },
+        'fails with body data as an object': {
+            topic: function (map) {
+                try {
+                    return map.mapserv({}, {}, function(err, response) {
+                        // do nothing
+                    });
+                } catch (e) {
+                    return e;
+                }
+            },
+            'throwing an error': function (err) {
+                assert.instanceOf(err, Error);
+                assert.equal(err.message, "Argument 1 must be one of a string; buffer; null; undefined");
+            }
+        },
         'fails with one argument': {
             topic: function (map) {
                 try {
@@ -564,7 +626,10 @@ END",
                 return map.mapserv(
                     {
                         'REQUEST_METHOD': 'GET',
-                        'QUERY_STRING': 'mode=map&layer=credits'
+                        // all GET variables after `layer` are there to ensure
+                        // code in `node-mapservutil.c` is covered
+                        'QUERY_STRING': 'mode=map&layer=credits&classgroup=group2&map.name=new_name&context=/foo/bar.xml&context=http://foo/bar.xml',
+                        'HTTP_COOKIE': 'Cookie=tasty' // ensure code in `node-mapservutil.c` is covered
                     },
                     this.callback);
             },
@@ -593,6 +658,32 @@ END",
             },
             'does not return an error': function (err, response) {
                 assert.isNull(err);
+            }
+        },
+        'via `GET` with invalid CGI parameters': {
+            topic: function (map) {
+                return map.mapserv(
+                    {
+                        'REQUEST_METHOD': 'GET',
+                        'QUERY_STRING': 'mode=map&layer=credits&zoomdir=2' // bad zoomdir
+                    }, this.callback);
+            },
+            'returns an error': function (err, response) {
+                assert.instanceOf(err, Error);
+                assert.equal(err.message, 'Zoom direction must be 1, 0 or -1.');
+            }
+        },
+        'via `GET` with invalid mapfile parameters': {
+            topic: function (map) {
+                return map.mapserv(
+                    {
+                        'REQUEST_METHOD': 'GET',
+                        'QUERY_STRING': 'mode=map&layer=credits&map.layer[2].name=oops' // `layer[2]` doesn't exist
+                    }, this.callback);
+            },
+            'returns an error': function (err, response) {
+                assert.instanceOf(err, Error);
+                assert.equal(err.message, 'Layer to be modified not valid.');
             }
         },
         'via `POST`': {
@@ -746,7 +837,7 @@ END",
         topic: mapserv.createCGIEnvironment(dummyRequest(), {
             SCRIPT_NAME: '/testing' // overwrite a variable
         }),
-        
+
         'should produce the expected CGI environment': function (env) {
             assert.isObject(env);
             assert.deepEqual(env, {
@@ -762,6 +853,8 @@ END",
                 QUERY_STRING: 'key=value',
                 REMOTE_ADDR: '127.0.0.0',
                 CONTENT_LENGTH: '22',
+                CONTENT_TYPE: 'application/x-www-form-urlencoded',
+                AUTH_TYPE: 'Basic',
                 HTTP_ACCEPT: '*/*' });
         }
     }

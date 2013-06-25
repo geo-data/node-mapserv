@@ -65,7 +65,7 @@ coverage/bindings.info: coverage/addon.info
 coverage/addon.info: coverage/lcov.info
 	lcov --capture --base-directory src/ --directory . --output-file coverage/addon.info
 coverage/lcov.info: $(test_deps) $(ISTANBUL)
-	 $(ISTANBUL) cover --report lcovonly $(VOWS) -- test/mapserv-test.js
+	node --nouse_idle_notification --expose-gc $(ISTANBUL) cover --report lcovonly $(VOWS) -- test/mapserv-test.js
 
 # Install required node modules
 $(NODE_GYP):
