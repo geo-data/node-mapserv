@@ -44,6 +44,7 @@
  * details.
  */
 
+#include <signal.h>
 #include "map.hpp"
 
 /** Clean up at module exit.
@@ -52,11 +53,9 @@
  * unloaded.
  *
  * The function signature is designed so that a pointer to the
- * function can be passed to the `Node::AtExit` function.
- *
- * @param arg Not currently used.
+ * function can be passed to the `atexit` function.
  */
-static void Cleanup(void* arg) {
+static void cleanup(void) {
   msCleanup(0);
 }
 
@@ -105,7 +104,17 @@ extern "C" {
     versions->Set(String::NewSymbol("mapserver_details"), String::New(msGetVersion()));
     target->Set(String::NewSymbol("versions"), versions);
 
-    AtExit(Cleanup);
+    // Ensure Mapserver is cleaned up on receipt of various signals.
+    // Importantly this ensures that `MS_ERRORFILE` is properly closed (if
+    // set).
+    signal(SIGHUP, msCleanup);
+    signal(SIGINT, msCleanup);
+    signal(SIGQUIT, msCleanup);
+    signal(SIGTERM, msCleanup);
+    signal(SIGUSR1, msCleanup);
+    signal(SIGUSR2, msCleanup);
+
+    atexit(cleanup);            // clean up on normal exit
   }
 }
 
