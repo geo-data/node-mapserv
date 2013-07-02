@@ -365,8 +365,15 @@ void Map::MapservWork(uv_work_t *req) {
      should be made with the Node/V8 world here. */
 
   MapBaton *baton = static_cast<MapBaton*>(req->data);
-  mapservObj* mapserv = msAllocMapServObj();
+  mapservObj* mapserv = NULL;
   bool reportError = false;     // flag an error as worthy of reporting
+
+  if (msDebugInitFromEnv() != MS_SUCCESS) {
+    reportError = true;
+    goto handle_error;
+  }
+
+  mapserv = msAllocMapServObj();
 
   msIO_installStdinFromBuffer(); // required to catch POSTS without data
   msIO_installStdoutToBuffer();  // required to capture mapserver output
@@ -407,6 +414,7 @@ void Map::MapservWork(uv_work_t *req) {
   // Get the buffered output
   baton->buffer = msIO_getStdoutBufferBytes();
 
+ handle_error:
   // handle any unhandled errors
   errorObj *error = msGetErrorObj();
   if (error && error->code != MS_NOERR) {
@@ -418,8 +426,9 @@ void Map::MapservWork(uv_work_t *req) {
   }
 
   // clean up
-  msIO_resetHandlers();
   msFreeMapServObj(mapserv);
+  msIO_resetHandlers();
+  msDebugCleanup();
   return;
 }
 
