@@ -86,6 +86,27 @@ function dummyRequest() {
     return req;
 }
 
+// Ensure a Mapserver error has the expected interface
+function assertMapserverError(expected, actual, noStack) {
+    assert.instanceOf(actual, Error);
+    assert.equal(actual.name, 'MapserverError');
+    assert.include(actual, 'code');
+    assert.include(actual, 'category');
+    assert.include(actual, 'routine');
+    assert.include(actual, 'isReported');
+    if (!noStack) {
+        assert.include(actual, 'errorStack');
+        assert.isArray(actual.errorStack);
+    }
+    assert.isNumber(actual.code);
+    assert.isString(actual.routine);
+    assert.strictEqual(actual.routine.length > 1, true);
+    assert.isString(actual.category);
+    assert.strictEqual(actual.category.length > 1, true);
+    assert.isBoolean(actual.isReported);
+    assert.equal(expected, actual.message);
+}                
+
 vows.describe('mapserv').addBatch({
     // Ensure the module has the expected interface
 
@@ -370,6 +391,21 @@ vows.describe('mapserv').addBatch({
         }
     }
 }).addBatch({
+    // Ensure errors provide the expected interface
+
+    'Loading a non-existent mapfile': {
+        topic: function () {
+            mapserv.Map.FromFile('non-existent-file', this.callback); // this should produce two errors
+        },
+
+        'results in an error': function (err, result) {
+            assert.equal(undefined, result);
+            assertMapserverError('MS_DEFAULT_MAPFILE_PATTERN validation failed.', err);
+            assert.lengthOf(err.errorStack, 1);
+            assertMapserverError('String failed expression test.', err.errorStack[0], true);
+        }
+    }
+}).addBatch({
     // Ensure `Map.FromFile` works as expected
 
     'A valid mapfile file': {
@@ -393,9 +429,8 @@ vows.describe('mapserv').addBatch({
                 mapserv.Map.FromFile(mapfile, this.callback); // load the map from file
             },
             'results in an error': function (err, result) {
-                assert.instanceOf(err, Error);
                 assert.equal(undefined, result);
-                assert.equal('Parsing error near (LAYER):(line 14)', err.message);
+                assertMapserverError('Parsing error near (LAYER):(line 14)', err);                
             }
         }
     }
@@ -442,9 +477,8 @@ vows.describe('mapserv').addBatch({
                 mapserv.Map.FromString(mapfile, this.callback); // load the map from a string
             },
             'results in an error': function (err, result) {
-                assert.instanceOf(err, Error);
                 assert.equal(undefined, result);
-                assert.equal('Parsing error near (LAYER):(line 14)', err.message);
+                assertMapserverError('Parsing error near (LAYER):(line 14)', err); 
             }
         }
     },
@@ -481,9 +515,8 @@ END",
                 mapserv.Map.FromString(mapfile, this.callback); // load the map from a string
             },
             'results in an error': function (err, result) {
-                assert.instanceOf(err, Error);
                 assert.equal(undefined, result);
-                assert.equal('Could not load mapfile', err.message);
+                assertMapserverError('Could not load mapfile', err); 
             }
         }
     }
@@ -669,8 +702,7 @@ END",
                     }, this.callback);
             },
             'returns an error': function (err, response) {
-                assert.instanceOf(err, Error);
-                assert.equal(err.message, 'Zoom direction must be 1, 0 or -1.');
+                assertMapserverError('Zoom direction must be 1, 0 or -1.', err);
             }
         },
         'via `GET` with invalid mapfile parameters': {
@@ -682,8 +714,7 @@ END",
                     }, this.callback);
             },
             'returns an error': function (err, response) {
-                assert.instanceOf(err, Error);
-                assert.equal(err.message, 'Layer to be modified not valid.');
+                assertMapserverError('Layer to be modified not valid.', err);
             }
         },
         'via `POST`': {
@@ -790,8 +821,7 @@ END",
                 assert.isTrue(response.data.length > 0);
             },
             'which has an error': function (err, response) {
-                assert.instanceOf(err, Error);
-                assert.equal(err.message, 'No request parameters loaded');
+                assertMapserverError('No request parameters loaded', err);
             }
         },
         'with a `REQUEST_METHOD` but no `QUERY_STRING` returns a response': {
@@ -826,8 +856,7 @@ END",
                 assert.equal(response.data.toString(), "No query information to decode. QUERY_STRING not set.\n");
             },
             'returns an error': function (err, response) {
-                assert.instanceOf(err, Error);
-                assert.equal(err.message, 'No request parameters loaded');
+                assertMapserverError('No request parameters loaded', err);
             }
         }
     }

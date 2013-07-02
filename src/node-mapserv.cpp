@@ -46,6 +46,7 @@
 
 #include <signal.h>
 #include "map.hpp"
+#include "error.hpp"
 
 /** Clean up at module exit.
  *
@@ -94,8 +95,10 @@ extern "C" {
       msCleanup(0);
       return;
     }
-    
+
+    // initialise module components
     Map::Init(target);
+    MapserverError::Init();
 
     // versioning information
     Local<Object> versions = Object::New();

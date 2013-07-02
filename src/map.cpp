@@ -121,6 +121,7 @@ Handle<Value> Map::FromFileAsync(const Arguments& args) {
   baton->request.data = baton;
   baton->map = NULL;
   baton->callback = Persistent<Function>::New(callback);
+  baton->error = NULL;
   baton->mapfile = *mapfile;
 
   uv_queue_work(uv_default_loop(),
@@ -146,10 +147,10 @@ void Map::FromFileWork(uv_work_t *req) {
   baton->map = msLoadMap(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || error->isreported || !strlen(error->message)) {
-      baton->error = "Could not load mapfile";
+    if (!error || error->code == MS_NOERR || !strlen(error->message)) {
+      baton->error = new MapserverError("Could not load mapfile", "Map::FromStringWork()");
     } else {
-      baton->error = error->message;
+      baton->error = new MapserverError(error);
     }
   }
 
@@ -171,9 +172,10 @@ void Map::FromFileAfter(uv_work_t *req) {
   MapfileBaton *baton = static_cast<MapfileBaton*>(req->data);
   Handle<Value> argv[2];
 
-  if (!baton->error.empty()) {
-    argv[0] = Exception::Error(String::New(baton->error.c_str()));
+  if (baton->error) {
+    argv[0] = baton->error->toV8Error();
     argv[1] = Undefined();
+    delete baton->error;        // we've finished with it
   } else {
     Local<Value> mapObj = External::New(baton->map);
     Persistent<Object> map = Persistent<Object>(map_template->GetFunction()->NewInstance(1, &mapObj));
@@ -234,6 +236,7 @@ Handle<Value> Map::FromStringAsync(const Arguments& args) {
   baton->request.data = baton;
   baton->map = NULL;
   baton->callback = Persistent<Function>::New(callback);
+  baton->error = NULL;
   baton->mapfile = mapfile;
 
   // Run in a different thread. Note there is *no* `FromStringAfter`:
@@ -261,10 +264,10 @@ void Map::FromStringWork(uv_work_t *req) {
   baton->map = msLoadMapFromString(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || error->isreported || !strlen(error->message)) {
-      baton->error = "Could not load mapfile";
+    if (!error || error->code == MS_NOERR || !strlen(error->message)) {
+      baton->error = new MapserverError("Could not load mapfile", "Map::FromStringWork()");
     } else {
-      baton->error = error->message;
+      baton->error = new MapserverError(error);
     }
   }
 
@@ -328,6 +331,7 @@ Handle<Value> Map::MapservAsync(const Arguments& args) {
   baton->self = self;
   baton->callback = Persistent<Function>::New(callback);
   baton->map = self->map;
+  baton->error = NULL;
   baton->body = body;
 
   // Convert the environment object to a `std::map`
@@ -420,7 +424,7 @@ void Map::MapservWork(uv_work_t *req) {
   if (error && error->code != MS_NOERR) {
     // report the error if requested
     if (reportError) {
-      baton->error = error->message;
+      baton->error = new MapserverError(error);
     }
     msResetErrorList();         // clear all handled errors
   }
@@ -449,8 +453,9 @@ void Map::MapservAfter(uv_work_t *req) {
 
   Handle<Value> argv[2];
 
-  if (!baton->error.empty()) {
-    argv[0] = Exception::Error(String::New(baton->error.c_str()));
+  if (baton->error) {
+    argv[0] = baton->error->toV8Error();
+    delete baton->error;        // we've finished with it
   } else {
     argv[0] = Undefined();
   }

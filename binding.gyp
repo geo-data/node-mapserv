@@ -5,6 +5,7 @@
       "sources": [
         "src/node-mapserv.cpp",
         "src/map.cpp",
+        "src/error.cpp",
         "src/node-mapservutil.c"
       ],
       "include_dirs": [
