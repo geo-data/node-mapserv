@@ -155,7 +155,7 @@ passed to a callback):
     any Mapserver output
 - **`errorStack`**: an array containing the stack of any errors leading up to
     the current error, most recent error first.  This property is not available
-    in errors present in `errorStack`.
+    in errors present in the stack.
 
 ## Requirements
 
