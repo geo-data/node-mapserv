@@ -30,7 +30,7 @@ declarative API for rendering mapserver mapfiles with the following benefits:
   with a modified mapfile).
 
 * Robustly tested: The module has a suite of tests that exercises the whole
-  API.  The tests provide 95% line coverage and 93% function coverage; excluded
+  API.  The tests provide 96% line coverage and 95% function coverage; excluded
   code generally handles hard to replicate edge cases (e.g. memory
   exhaustion). This suite has been run through Valgrind to check for memory
   leaks.
