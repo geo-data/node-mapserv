@@ -249,15 +249,16 @@ any memory issues:
 
 And issue your pull request or patch...
 
+### Documentation
+
+Doxygen based documentation is available for the C++ bindings:
+
+    make doc
+
 ## Bugs
 
 Please report bugs or issues using the
 [GitHub issue tracker](https://github.com/geo-data/node-mapserv).
-
-## Documentation
-
-Doxygen based documentation is available for the C++ bindings. See
-`doc/README.md` for details.
 
 ## Licence
 

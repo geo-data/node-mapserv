@@ -8,6 +8,7 @@
 #  - `make test`: run the tests
 #  - `make cover`: perform the code coverage analysis
 #  - `make valgrind`: run the test suite under valgrind
+#  - `make doc`: create the doxygen documentation
 #  - `make clean`: remove generated files
 #
 
@@ -61,7 +62,7 @@ valgrind: $(test_deps) $(ISTANBUL)
 cover: coverage/index.html
 coverage/index.html: coverage/node-mapserv.info
 	genhtml --output-directory coverage coverage/node-mapserv.info
-	@echo "\033[0;32mPoint your browser to \`coverage/index.html\`\033[m\017"
+	@echo "\033[0;32mPoint your browser at \`coverage/index.html\`\033[m\017"
 coverage/node-mapserv.info: coverage/bindings.info
 	lcov --test-name node-mapserv \
 	--add-tracefile coverage/lcov.info \
@@ -89,9 +90,18 @@ $(ISTANBUL): package.json
 	npm install istanbul
 	@touch $(ISTANBUL)
 
+# Generate the Doxygen documentation
+doc: doc/.made
+doc/.made: doc/Doxyfile
+	chdir ./doc/ && doxygen
+	@echo "\033[0;32mPoint your browser at \`doc/html/index.html\`\033[m\017"
+	@touch doc/.made
+
 # Clean up any generated files
 clean: $(NODE_GYP)
 	$(NODE_GYP) clean
-	rm -rf coverage
+	rm -rf coverage \
+	doc/html \
+	doc/latex
 
 .PHONY: test
