@@ -156,7 +156,7 @@ passed to a callback):
     any Mapserver output
 - **`errorStack`**: an array containing the stack of any errors leading up to
     the current error, most recent error first.  This property is not available
-    in errors present in the stack.
+    in errors present in the stack itself.
 
 ## Requirements
 
@@ -166,7 +166,7 @@ passed to a callback):
 
 * Node.js >=0.8
 
-* Mapserver >= 6.2 (If you are using `Map.FromString` ensure that you are using
+* Mapserver >= 6.2. If you are using `Map.FromString` ensure that you are using
   Mapserver >= 6.3 or alternatively you have applied
   [this patch](https://github.com/mapserver/mapserver/commit/e9e48941e9b02378de57a8ad6c6aa0d070816b06).
   Mapserver *must* be compiled with support for threads.
@@ -238,7 +238,7 @@ Add tests for your changes to `test/mapserv-test.js` and run them:
     make test
 
 Perform code coverage analysis to ensure all code paths in your changes are
-tested (this requires `lcov`(http://ltp.sourceforge.net/coverage/lcov.php) be
+tested (this requires [`lcov`](http://ltp.sourceforge.net/coverage/lcov.php) be
 installed):
 
     make cover
@@ -263,7 +263,7 @@ Please report bugs or issues using the
 
 ## Licence
 
-BSD 2-Clause (http://opensource.org/licenses/BSD-2-Clause).
+[BSD 2-Clause](http://opensource.org/licenses/BSD-2-Clause).
 
 ## Contact
 
