@@ -209,6 +209,15 @@ vows.describe('mapserv').addBatch({
                     assert.isTrue(version.length > 0);
                 }
             },
+            'which contains the `mapserver_numeric` version': {
+                topic: function (versions) {
+                    return versions.mapserver_numeric;
+                },
+                'as an integer': function (version) {
+                    assert.isNumber(version);
+                    assert.isTrue(version > 60200); // the minimum supported version
+                }
+            },
             'which contains the `mapserver_details`': {
                 topic: function (versions) {
                     return versions.mapserver_details;
