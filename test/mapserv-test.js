@@ -216,7 +216,7 @@ vows.describe('mapserv').addBatch({
                 'as an integer': function (version) {
                     if (version) { // a hack to skip pre mapserver 6.3
                         assert.isNumber(version);
-                        assert.isTrue(version >= 60300); // the minimum supported version
+                        assert.isTrue(version > 60200); // the minimum supported version
                     }
                 }
             },
