@@ -104,7 +104,9 @@ extern "C" {
     Local<Object> versions = Object::New();
     versions->Set(String::NewSymbol("node_mapserv"), String::New(NODE_MAPSERV_VERSION));
     versions->Set(String::NewSymbol("mapserver"), String::New(MS_VERSION));
+#ifdef MS_VERSION_NUM
     versions->Set(String::NewSymbol("mapserver_numeric"), Integer::New(msGetVersionInt()));
+#endif
     versions->Set(String::NewSymbol("mapserver_details"), String::New(msGetVersion()));
     target->Set(String::NewSymbol("versions"), versions);
 
