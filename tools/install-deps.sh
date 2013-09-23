@@ -27,10 +27,12 @@ if [ -n "${MAPSERVER_COMMIT}" ]; then
     git checkout $MAPSERVER_COMMIT || die "Cannot checkout ${MAPSERVER_COMMIT}"
 fi
 
-# build and install mapserver
+# build and install mapserver. This uses `-DWITH_THREADS` for Mapserver < 6.4
+# and `-DWITH_THREAD_SAFETY` for >= 6.4: the unhandled option is ignored.
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
     cmake CMakeLists.txt \
         -DWITH_THREADS=1 \
+        -DWITH_THREAD_SAFETY=1 \
         -DCMAKE_INSTALL_PREFIX=${PREFIX}/mapserver-install \
         -DWITH_PROJ=0 \
         -DWITH_FRIBIDI=0 \
