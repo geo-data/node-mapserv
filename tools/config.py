@@ -151,12 +151,17 @@ class CmakeConfig(Config):
         with threads, raising an error if this is not the case.
         """
         with_threads = False
-        p = re.compile('^WITH_THREADS:BOOL *= *(.+)$')
+        patterns = [
+            re.compile('^WITH_THREAD_SAFETY:BOOL *= *(.+)$'), # >= Mapserver 6.4
+            re.compile('^WITH_THREADS:BOOL *= *(.+)$')        # < Mapserver 6.4
+            ]
+
         with open(self.cmake_cache, 'r') as f:
             for line in f:
-                match = p.match(line)
-                if match:
-                    with_threads = match.groups()[0].strip() in ('ON', '1')
+                for p in patterns:
+                    match = p.match(line)
+                    if match:
+                        with_threads = match.groups()[0].strip() in ('ON', '1')
                 yield line
         if not with_threads:
             raise ConfigError('Mapserver has not been compiled with support for threads')
