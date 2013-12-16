@@ -173,6 +173,11 @@ passed to a callback):
 
 ## Installation
 
+### Using NPM
+
+The latest stable release of Node Mapcache is available via the Node
+Package Manager:
+
 * Ensure [Node.js](http://nodejs.org) and [Mapserver](http://www.mapserver.org)
   are available on your system.  Mapserver will need to have been built from
   source with the source directory still available.
@@ -189,6 +194,41 @@ passed to a callback):
 * Optionally test that everything is working as expected (recommended):
 
    `npm test mapserv`
+
+### Using Docker
+
+Assuming you have [Docker](http://www.docker.io/) available on your
+system, the following command will obtain a docker image with the
+latest Node Mapserv code from git built against the latest Mapserver
+git checkout:
+
+    docker pull homme/node-mapserv:latest
+
+Note that the latest Mapserver git checkout is the latest **at the
+time the image was built**.  If you want the absolute latest code of
+both Node Mapserv *and* Mapserver, build the docker image yourself
+locally along these lines:
+
+    docker build -t homme/node-mapserv:latest https://raw.github.com/geo-data/node-mapserv/master/docker/latest/Dockerfile
+
+By default the image runs the Node Mapserv tests:
+
+    docker run homme/node-mapserv:latest
+
+Running Node directly from the image allows you to `require()` and
+play around with Node Mapserv interactively:
+
+    docker run -t -i homme/node-mapserv:latest /usr/bin/node
+    > var mapserv = require('mapserv');
+    undefined
+    > mapserv.versions
+    { node_mapserv: '0.1.4',
+      mapserver: '6.5-dev',
+      mapserver_numeric: 60500,
+      mapserver_details: 'MapServer version 6.5-dev OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=SVGCAIRO SUPPORTS=ICONV SUPPORTS=XMP SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=THREADS SUPPORTS=GEOS INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE' }
+
+See the [Docker Index](https://index.docker.io/u/homme/node-mapserv/)
+for further information.
 
 ## Recommendations
 
