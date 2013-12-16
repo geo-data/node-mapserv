@@ -16,7 +16,7 @@ MAP
     NAME "credits"
     STATUS DEFAULT
     TRANSFORM FALSE
-    TYPE ANNOTATION
+    TYPE POINT
     CLASSGROUP "group1"
     FEATURE
       POINTS
@@ -28,14 +28,20 @@ MAP
       GROUP "group1"
       LABEL
         TYPE BITMAP
-        COLOR 0 0 0
+        STYLE
+          GEOMTRANSFORM 'labelpnt'
+          COLOR 0 0 0
+        END
       END
     END
     CLASS
       GROUP "group2"
       LABEL
         TYPE BITMAP
-        COLOR 0 0 255
+        STYLE
+          GEOMTRANSFORM 'labelpnt'
+          COLOR 0 0 255
+        END
       END
     END
   END
