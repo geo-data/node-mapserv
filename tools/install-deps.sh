@@ -30,7 +30,8 @@ fi
 # build and install mapserver. This uses `-DWITH_THREADS` for Mapserver < 6.4
 # and `-DWITH_THREAD_SAFETY` for >= 6.4: the unhandled option is ignored.
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
-    cmake CMakeLists.txt \
+    mkdir ./build && cd ./build && \
+    cmake ../CMakeLists.txt \
         -DWITH_THREADS=1 \
         -DWITH_THREAD_SAFETY=1 \
         -DCMAKE_INSTALL_PREFIX=${PREFIX}/mapserver-install \
@@ -52,4 +53,4 @@ make || die "make failed"
 make install || die "make install failed"
 
 # point `npm` at the build
-npm config set mapserv:build_dir ${PREFIX}/mapserver
+npm config set mapserv:build_dir ${PREFIX}/mapserver/build
