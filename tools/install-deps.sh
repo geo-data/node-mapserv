@@ -31,7 +31,7 @@ fi
 # and `-DWITH_THREAD_SAFETY` for >= 6.4: the unhandled option is ignored.
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
     MAPSERVER_BUILD_DIR=${PREFIX}/mapserver/build
-    rm -rf ./build; mkdir ./build && cd ./build
+    mkdir ./build && cd ./build
     cmake .. \
         -DWITH_THREADS=1 \
         -DWITH_THREAD_SAFETY=1 \
