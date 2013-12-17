@@ -30,13 +30,15 @@ fi
 # build and install mapserver. This uses `-DWITH_THREADS` for Mapserver < 6.4
 # and `-DWITH_THREAD_SAFETY` for >= 6.4: the unhandled option is ignored.
 if [ -f ./CMakeLists.txt ]; then # it's a cmake build
-    mkdir ./build && cd ./build && \
-    cmake ../CMakeLists.txt \
+    MAPSERVER_BUILD_DIR=${PREFIX}/mapserver/build
+    rm -rf ./build; mkdir ./build && cd ./build
+    cmake .. \
         -DWITH_THREADS=1 \
         -DWITH_THREAD_SAFETY=1 \
         -DCMAKE_INSTALL_PREFIX=${PREFIX}/mapserver-install \
         -DWITH_PROJ=0 \
         -DWITH_FRIBIDI=0 \
+        -DWITH_HARFBUZZ=0 \
         -DWITH_FCGI=0 \
         -DWITH_GEOS=0 \
         -DWITH_GDAL=0 \
@@ -45,6 +47,7 @@ if [ -f ./CMakeLists.txt ]; then # it's a cmake build
         -DWITH_WFS=0 \
         -DWITH_WMS=0 || die "cmake failed"
 else                            # it's an autotools build
+    MAPSERVER_BUILD_DIR=${PREFIX}/mapserver
     autoconf || die "autoconf failed"
     ./configure --prefix=${PREFIX}/mapserver-install --with-threads || die "configure failed"
 fi
@@ -53,4 +56,4 @@ make || die "make failed"
 make install || die "make install failed"
 
 # point `npm` at the build
-npm config set mapserv:build_dir ${PREFIX}/mapserver/build
+npm config set mapserv:build_dir "${MAPSERVER_BUILD_DIR}"
