@@ -16,8 +16,7 @@
         "node": ">=0.8"
     },
     "scripts": {
-        "pretest": "npm install vows",
-        "test": "./node_modules/.bin/vows --spec ./test/mapserv-test.js"
+        "test": "vows --spec ./test/mapserv-test.js"
     },
     "dependencies": {},
     "devDependencies": {
