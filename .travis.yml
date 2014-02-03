@@ -12,4 +12,9 @@ env:
   - MAPSERVER_COMMIT=           # repository HEAD
 before_install:
   - sudo apt-get install libgif-dev                   # mapserver dependencies
+  - sudo apt-get install lcov                         # enable code coverage
   - sh ./tools/install-deps.sh /tmp $MAPSERVER_COMMIT # install the dependencies
+after_success:
+  # Upload the code coverage data to coveralls
+  - make coverage/node-mapserv.info
+  - cat coverage/node-mapserv.info | ./node_modules/.bin/coveralls
