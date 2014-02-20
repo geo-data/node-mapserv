@@ -1,0 +1,8 @@
+# Trigger an error with a non-existent include
+MAP
+ NAME "include-mapfile"
+ EXTENT 0 0 500 500
+ SIZE 250 250
+
+ INCLUDE "non-existent-file.map"
+END

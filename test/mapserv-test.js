@@ -87,16 +87,19 @@ function dummyRequest() {
 }
 
 // Ensure a Mapserver error has the expected interface
-function assertMapserverError(expected, actual, noStack) {
+function assertMapserverError(expected, actual, stack) {
     assert.instanceOf(actual, Error);
     assert.equal(actual.name, 'MapserverError');
     assert.include(actual, 'code');
     assert.include(actual, 'category');
     assert.include(actual, 'routine');
     assert.include(actual, 'isReported');
-    if (!noStack) {
+    if (stack || stack === undefined) {
         assert.include(actual, 'errorStack');
         assert.isArray(actual.errorStack);
+        if (typeof stack == 'number') {
+            assert.lengthOf(actual.errorStack, stack);
+        }
     }
     assert.isNumber(actual.code);
     assert.isString(actual.routine);
@@ -411,9 +414,8 @@ vows.describe('mapserv').addBatch({
 
         'results in an error': function (err, result) {
             assert.equal(undefined, result);
-            assertMapserverError('MS_DEFAULT_MAPFILE_PATTERN validation failed.', err);
-            assert.lengthOf(err.errorStack, 1);
-            assertMapserverError('String failed expression test.', err.errorStack[0], true);
+            assertMapserverError('MS_DEFAULT_MAPFILE_PATTERN validation failed.', err, 1);
+            assertMapserverError('String failed expression test.', err.errorStack[0], false);
         }
     }
 }).addBatch({
@@ -442,6 +444,19 @@ vows.describe('mapserv').addBatch({
             'results in an error': function (err, result) {
                 assert.equal(undefined, result);
                 assertMapserverError('Parsing error near (LAYER):(line 14)', err);                
+            }
+        }
+    },
+    'A mapfile with a non existent INCLUDE': {
+        topic: path.join(__dirname, 'include-error.map'),
+
+        'when loaded': {
+            topic: function (mapfile) {
+                mapserv.Map.FromFile(mapfile, this.callback); // load the map from file
+            },
+            'results in an error': function (err, result) {
+                assert.equal(undefined, result);
+                assertMapserverError('Premature End-of-File.', err, 1);
             }
         }
     }
@@ -493,7 +508,7 @@ vows.describe('mapserv').addBatch({
             }
         }
     },
-    'A mapfile buffer with a comment': {
+    'A mapfile buffer that does not terminate properly': {
         topic: "MAP \
     NAME DEMO \
     STATUS ON \
@@ -527,7 +542,7 @@ END",
             },
             'results in an error': function (err, result) {
                 assert.equal(undefined, result);
-                assertMapserverError('Could not load mapfile', err); 
+                assertMapserverError('Premature End-of-File.', err);
             }
         }
     }

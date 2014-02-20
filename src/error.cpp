@@ -127,12 +127,13 @@ Handle<Value> MapserverError::toV8Error() {
 Handle<Value> MapserverError::ToV8Error(MapserverError *error) {
   HandleScope scope;
 
-  Local<Value> result = Exception::Error(String::New(error->message.c_str()));
+  char *category = msGetErrorCodeString(error->code);
+  Local<Value> result = Exception::Error(String::New(( error->message.length() ? error->message.c_str() : category )));
   Local<Object> object = result->ToObject();
   object->Set(name_symbol, MapserverError_symbol);
   object->Set(routine_symbol, String::New(error->routine.c_str()));
   object->Set(code_symbol, Integer::New(error->code));
-  object->Set(category_symbol, String::New(msGetErrorCodeString(error->code)));
+  object->Set(category_symbol, String::New(category));
   object->Set(isReported_symbol, Boolean::New(error->isReported));
 
   return scope.Close(result);

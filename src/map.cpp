@@ -147,7 +147,7 @@ void Map::FromFileWork(uv_work_t *req) {
   baton->map = msLoadMap(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || !strlen(error->message)) {
+    if (!error) {
       baton->error = new MapserverError("Could not load mapfile", "Map::FromFileWork()");
     } else {
       baton->error = new MapserverError(error);
@@ -264,7 +264,7 @@ void Map::FromStringWork(uv_work_t *req) {
   baton->map = msLoadMapFromString(const_cast<char *>(baton->mapfile.c_str()), NULL);
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
-    if (!error || error->code == MS_NOERR || !strlen(error->message)) {
+    if (!error) {
       baton->error = new MapserverError("Could not load mapfile", "Map::FromStringWork()");
     } else {
       baton->error = new MapserverError(error);
