@@ -148,7 +148,7 @@ void Map::FromFileWork(uv_work_t *req) {
   if (!baton->map) {
     errorObj *error = msGetErrorObj();
     if (!error || error->code == MS_NOERR || !strlen(error->message)) {
-      baton->error = new MapserverError("Could not load mapfile", "Map::FromStringWork()");
+      baton->error = new MapserverError("Could not load mapfile", "Map::FromFileWork()");
     } else {
       baton->error = new MapserverError(error);
     }
