@@ -1,3 +1,5 @@
+## -*- docker-image-name: "homme/node-mapserv:latest" -*-
+
 ##
 # Node Mapserv
 #
@@ -52,7 +54,7 @@ RUN cd /tmp && wget http://www.freedesktop.org/software/harfbuzz/release/harfbuz
     ldconfig
 
 # Install Mapserver itself
-RUN git clone https://github.com/mapserver/mapserver/ /usr/local/src/mapserver
+RUN git clone --depth=0 https://github.com/mapserver/mapserver/ /usr/local/src/mapserver
 RUN mkdir /usr/local/src/mapserver/build && \
     cd /usr/local/src/mapserver/build && \
     cmake ../ -DWITH_THREAD_SAFETY=1 \
@@ -81,7 +83,8 @@ RUN mkdir /usr/local/src/mapserver/build && \
         -DWITH_XMLMAPFILE=1 \
 	-DWITH_FCGI=0 && \
     make && \
-    make install
+    make install && \
+    ldconfig
 
 # Install Node Mapserv. This installs to `/node_modules` so will always be found
 RUN git clone https://github.com/geo-data/node-mapserv/ /usr/local/src/node-mapserv
