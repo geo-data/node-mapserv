@@ -36,7 +36,7 @@ RUN apt-get install -y libxml2-dev \
     libproj-dev \
     libfribidi-dev \
     libcairo2-dev \
-    libsvg-cairo \
+    librsvg2-dev \
     libmysqlclient-dev \
     libpq-dev \
     libcurl4-gnutls-dev \
@@ -45,6 +45,7 @@ RUN apt-get install -y libxml2-dev \
     libgeos-dev
 
 # Install libharfbuzz from source as it is not in a repository
+RUN apt-get install -y bzip2
 RUN cd /tmp && wget http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-0.9.19.tar.bz2 && \
     tar xjf harfbuzz-0.9.19.tar.bz2 && \
     cd harfbuzz-0.9.19 && \
@@ -66,7 +67,7 @@ RUN mkdir /usr/local/src/mapserver/build && \
         -DWITH_HARFBUZZ=1 \
         -DWITH_ICONV=1 \
         -DWITH_CAIRO=1 \
-        -DWITH_SVGCAIRO=1 \
+        -DWITH_RSVG=1 \
         -DWITH_MYSQL=1 \
         -DWITH_GEOS=1 \
         -DWITH_POSTGIS=1 \
