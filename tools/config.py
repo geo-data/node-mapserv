@@ -219,9 +219,20 @@ parser.add_option("--cflags",
 (options, args) = parser.parse_args()
 
 try:
+    # gyp provides the build directory in an environment variable
     build_dir = os.environ['npm_config_mapserv_build_dir']
 except KeyError:
-    die('`npm config set mapserv:build_dir` has not been called')
+    # for cases where gyp is not the caller just use `npm` directly
+    import subprocess
+    cmd = ['npm', 'config', 'get', 'mapserv:build_dir']
+    npm = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = npm.communicate()
+    if npm.returncode != 0:
+        die('npm failed: ' + stderr)
+
+    build_dir = stdout.strip()
+    if build_dir == 'undefined':
+        die('`npm config set mapserv:build_dir` has not been called')
 
 # get the config object, trying the new cmake system first and falling back to
 # the legacy autoconf build sytem
