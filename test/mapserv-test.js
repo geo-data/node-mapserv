@@ -409,13 +409,12 @@ vows.describe('mapserv').addBatch({
 
     'Loading a non-existent mapfile': {
         topic: function () {
-            mapserv.Map.FromFile('non-existent-file', this.callback); // this should produce two errors
+            mapserv.Map.FromFile('non-existent-file', this.callback); // this should produce an error
         },
 
         'results in an error': function (err, result) {
             assert.equal(undefined, result);
-            assertMapserverError('MS_DEFAULT_MAPFILE_PATTERN validation failed.', err, 1);
-            assertMapserverError('String failed expression test.', err.errorStack[0], false);
+            assertMapserverError('MS_DEFAULT_MAPFILE_PATTERN validation failed.', err);
         }
     }
 }).addBatch({
