@@ -11,13 +11,13 @@
 # production ready images from.
 #
 
-FROM ubuntu:quantal
+# Trusty Tahyr 14.04 LTS
+FROM ubuntu:trusty
 
 MAINTAINER Homme Zwaagstra <hrz@geodata.soton.ac.uk>
 
 # Ensure the package repository is up to date
-RUN echo "deb http://archive.ubuntu.com/ubuntu quantal main universe" > /etc/apt/sources.list
-RUN apt-get update
+RUN apt-get update -y
 
 # Install basic dependencies
 RUN apt-get install -y software-properties-common python-software-properties python g++ make cmake wget git
@@ -55,7 +55,7 @@ RUN cd /tmp && wget http://www.freedesktop.org/software/harfbuzz/release/harfbuz
     ldconfig
 
 # Install Mapserver itself
-RUN git clone --depth=0 https://github.com/mapserver/mapserver/ /usr/local/src/mapserver
+RUN git clone --depth=1 https://github.com/mapserver/mapserver/ /usr/local/src/mapserver
 RUN mkdir /usr/local/src/mapserver/build && \
     cd /usr/local/src/mapserver/build && \
     cmake ../ -DWITH_THREAD_SAFETY=1 \
@@ -91,6 +91,7 @@ RUN mkdir /usr/local/src/mapserver/build && \
 RUN git clone https://github.com/geo-data/node-mapserv/ /usr/local/src/node-mapserv
 RUN npm config set mapserv:build_dir /usr/local/src/mapserver/build && \
     npm install /usr/local/src/node-mapserv
+RUN npm install vows            # so that the default command works
 
 # Run the Node Mapserv tests by default
 CMD npm test mapserv
