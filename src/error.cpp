@@ -102,7 +102,7 @@ Handle<Value> MapserverError::toV8Error() {
 
   // Represent the error stack linked list as an array
   MapserverError *error = next;
-  uint i = 0;
+  unsigned int i = 0;
   Local<Array> errorStack = Array::New(length-1);
   while (error) {
     Handle<Value> exception = ToV8Error(error);

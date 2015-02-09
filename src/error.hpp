@@ -103,7 +103,7 @@ private:
   /// The previous error in the error stack
   MapserverError *next;
   /// The number of errors in this error stack
-  uint length;
+  unsigned int length;
 
   /// Instantiate a bare bones error: populate it later
   MapserverError() :

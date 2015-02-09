@@ -47,7 +47,7 @@
                 "<(ms_buildkit)/include/" 
             ],
             "libraries" : [
-                '<(ms_root)/mapserver_i.lib',
+                '<(ms_root)/mapserver.lib',
                 '<(ms_buildkit)/lib/gdal_i.lib',
                 '<(ms_buildkit)/lib/agg.lib',
                 '<(ms_buildkit)/lib/cairo.lib',
@@ -60,7 +60,7 @@
                 '<(ms_buildkit)/lib/ftgl.lib',
                 '<(ms_buildkit)/lib/gd.lib',
                 '<(ms_buildkit)/lib/gdal_i.lib',
-                '<(ms_buildkit)/lib/geos_c_i.lib',
+                '<(ms_buildkit)/lib/geos_c.lib',
                 '<(ms_buildkit)/lib/giflib.lib',
                 '<(ms_buildkit)/lib/hdf5dll.lib',
                 '<(ms_buildkit)/lib/iconv.lib',

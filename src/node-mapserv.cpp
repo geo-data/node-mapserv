@@ -115,11 +115,16 @@ extern "C" {
     // set).
     signal(SIGHUP, msCleanup);
     signal(SIGINT, msCleanup);
+#ifdef SIGQUIT
     signal(SIGQUIT, msCleanup);
+#endif
     signal(SIGTERM, msCleanup);
+#ifdef SIGUSR1
     signal(SIGUSR1, msCleanup);
+#endif
+#ifdef SIGUSR2
     signal(SIGUSR2, msCleanup);
-
+#endif
     atexit(cleanup);            // clean up on normal exit
   }
 }

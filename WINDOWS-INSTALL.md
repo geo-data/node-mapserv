@@ -1,10 +1,10 @@
 # Node Mapserv on Windows
 
 Although Windows is not currently an officially supported platform for Node
-Mapserv, the module has been successfully built on Windows by the team at
-mapgears.com.  The related
-[GitHub issue](https://github.com/geo-data/node-mapserv/issues/7) provides a
-discussion point for general Windows issues.
+Mapserv, the module has been successfully built on Windows.  The related GitHub
+issues ([#7](https://github.com/geo-data/node-mapserv/issues/7) and
+[#14](https://github.com/geo-data/node-mapserv/issues/14)) provide further
+details on building with Windows.
 
 ## Installation
 
