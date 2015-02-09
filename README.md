@@ -164,7 +164,7 @@ passed to a callback):
   patches welcome!).  Although not currently supported, the module has been
   built successfully on Windows - see `WINDOWS-INSTALL.md` for more details.
 
-* Node.js >=0.10
+* Node.js 0.10 (Not yet working with 0.12)
 
 * Mapserver >= 6.2. If you are using `Map.FromString` ensure that you are using
   Mapserver >= 6.2.1 or alternatively you have applied
