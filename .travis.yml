@@ -4,7 +4,8 @@
 language: node_js
 node_js:
   - "0.10"
-  - node-head
+  - "0.12"
+  - "0.13"
 env:
   - MAPSERVER_COMMIT=rel-6-2-0  # v6.2.0
   - MAPSERVER_COMMIT=rel-6-2-1  # v6.2.1
@@ -15,7 +16,7 @@ matrix:
   fast_finish: true
   # allow unstable versions to fail
   allow_failures:
-    - node_js: node-head
+    - node_js: "0.13"
     - env: MAPSERVER_COMMIT=
 before_install:
   - sudo apt-get install libgif-dev                   # mapserver dependencies
